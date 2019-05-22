@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.13)
+find_package(ABY QUIET)
+if(ABY_FOUND)
+	message(STATUS "Found ABY")
+elseif (NOT ABY_FOUND AND NOT TARGET ABY::aby)
+	message("ABY was not found: add ABY subdirectory")
+	add_subdirectory(ABY)
+endif()
+
+add_executable(policy_test policy_test.cpp common/policy.cpp)
+target_link_libraries(policy_test ABY::aby)

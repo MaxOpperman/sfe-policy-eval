@@ -25,32 +25,29 @@
 #include <math.h>
 #include <cassert>
 
-#define ALICE 	"ALICE"
-#define BOB 	"BOB"
 
-/**
- \param		role 		role played by the program which can be server or client part.
- \param 	address 	IP Address
- \param 	seclvl 		Security level
- \param 	nvals		Number of values
- \param 	bitlen		Bit length of the inputs
- \param 	nthreads	Number of threads
- \param		mt_alg		The algorithm for generation of multiplication triples
- \param 	sharing		Sharing type object
- \brief		This function is used for running a testing environment for solving the
- millionaire's problem
- */
+struct query { uint32_t attr; uint32_t value; };
+struct target { uint32_t attr; uint32_t value; uint32_t condition; };
+struct composed_target { target t1; target t2; int combiner; };
+struct triple { share* permit; share* deny; share* na; };
+
 int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
 		uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg,
 		e_sharing sharing);
 
-/**
- \param		s_alice		shared object of alice.
- \param		s_bob 		shared object of bob.
- \param		bc	 		boolean circuit object.
- \brief		This function is used to build and solve the millionaire's problem.
- */
+// Inclusion gate
 share* PutINCGate(BooleanCircuit *bc, share *s_el, share *s_list[], int size);
 
+// Atomic evaluation
+triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q, target t);
+triple evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a, share *s_target_v, share *s_target_c);
 
-#endif /* __MILLIONAIREPROB_H_ */
+
+// Triple arithmetic
+triple triple_addition(BooleanCircuit *bc, triple t1, triple t2);
+triple triple_subtraction(BooleanCircuit *bc, triple t1, triple t2);
+triple triple_scaling(BooleanCircuit *bc, triple t1, share *s);
+triple triple_equality(BooleanCircuit *bc, triple t1, triple t2);
+
+
+#endif /* __POLICY_H_ */

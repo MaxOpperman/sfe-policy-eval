@@ -12,92 +12,239 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
 	std::vector<Sharing*>& sharings = party->GetSharings();
 	Circuit* circ = sharings[sharing]->GetCircuitBuildRoutine();
 
-	share *s_alice_money, *s_bob_money, *s_out;
+    // Query
+    query queries[1] = {{1, 12}};
 
-	uint32_t alice_money, bob_money, output;
-	srand(time(NULL));
-	alice_money = rand() % 100000;
-	bob_money = rand() % 100000;
-
-    struct query { int attr; int value; };
-
-    share *s_struct_share;
-    query queries[1] = {{5, 3}};
-
-    struct target { int attr; int value; int function; };
-
+    // Targets
     target t1 = {1, 12, 1};
+    
+    target t2_1 = {3, 35, 3};
+    target t2_2 = {2, 25, 1};
+    composed_target t2 = {t2_1, t2_2, 2};
+    
+    target t3 = {1, 13, 2};
 
+    target t4_1 = {1, 12, 1};
+    target t4_2 = {1, 13, 2};
+    composed_target t4 = {t4_1, t4_2, 5};
 
-    uint32_t el = 2;
-    share *s_el = circ->PutINGate(el, bitlen, CLIENT);
-    uint32_t list[3] = {1, 2, 3};
-    share *s_tmp;
-    share *s_list[3];
-    for(int i=0;i<sizeof(list)/sizeof(list[0]);i++) {
-        s_tmp = circ->PutINGate(list[i], bitlen, CLIENT);
-        s_list[i] = s_tmp;
-    }
-    std::cout << "List has " << sizeof(list)/sizeof(list[0]) << " elements";
-    s_out = PutINCGate((BooleanCircuit*) circ, s_el, s_list, sizeof(list) / sizeof(list[0]));
-    s_out = circ->PutOUTGate(s_out, ALL);
+    triple t = evaluate((BooleanCircuit*) circ, role, bitlen, queries[0], t1);
+
+    //share* permit = result.permit;
+    //share* na = result.na;
+    //share* deny = result.deny;
+
+    share *s_permit = circ->PutOUTGate(t.permit, ALL);
+    share *s_na = circ->PutOUTGate(t.na, ALL);
+    share *s_deny = circ->PutOUTGate(t.deny, ALL);
+
+    std::cout << "Circuit succesfully initialised." << std::endl;
+
     party->ExecCircuit();
-    output = s_out->get_clear_value<uint32_t>();
 
-    std::cout << "Output: " << output;
+    std::cout << "Circuit executed, collecting results..." << std::endl;
+
+    uint32_t permit_output = s_permit->get_clear_value<uint32_t>();
+    uint32_t na_output = s_na->get_clear_value<uint32_t>();
+    uint32_t deny_output = s_deny->get_clear_value<uint32_t>();
+
+    std::cout << "Output: ([" << permit_output << "], [" << deny_output << "], " << na_output << "])" << std::endl;
 
 	delete party;
 	return 0;
+}
+
+/*
+ * Setting up atomic evaluation formula
+ */
+triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q, target t) {
+    share* attr_share, *value_share, *target_attr_share, *target_value_share, *target_condition_share;
+    share* Aq[1] = {};
+    share* Vq[1] = {};
+
+    std::cout << "Given input query {" << q.attr << ", " << q.value << "}" << std::endl;
+    attr_share = bc->PutINGate(q.attr, bitlen, SERVER);
+    value_share = bc->PutINGate(q.value, bitlen, CLIENT);
+    std::cout << "Target {" << t.attr << ", " << t.value << ", " << t.condition <<"}" << std::endl;
+    target_attr_share = bc->PutINGate(t.attr, bitlen, SERVER);
+    target_value_share = bc->PutINGate(t.value, bitlen, SERVER);
+    target_condition_share = bc->PutINGate(t.condition, bitlen, SERVER);
+    Aq[0] = attr_share;
+    Vq[0] = value_share;
+
+    triple r = evaluate(bc, Aq, Vq, target_attr_share, target_value_share, target_condition_share); 
+    
+    return r;
+}
+
+/* This is atomic evaluation
+ *
+ */ 
+triple evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a, share *s_target_v, share *s_target_c)
+{
+    std::cout << "Starting the actual evaluation..." << std::endl;
+    // Some initial values
+    triple result;
+    uint32_t zero = 0;
+    uint32_t one = 1;
+
+    // Term 1   ([0], [0], [1]) if 
+    triple na_triple; 
+    na_triple.permit =  bc->PutINGate(zero, 1, CLIENT);
+    na_triple.deny =    bc->PutINGate(zero, 1, CLIENT);
+    na_triple.na =      bc->PutINGate(one, 1, CLIENT);
+
+    share *one_share = bc->PutINGate(one, 1, CLIENT);
+    share *inc_aq = PutINCGate(bc, s_target_a, Aq, sizeof(*Aq) / sizeof(Aq[0]));
+    share *int_result = bc->PutSUBGate(one_share, inc_aq);
+
+    result = triple_scaling(bc, na_triple, int_result);
+
+    // Term 2   ([1], [0], [0]) if [a_1 = a] and [v_1 condition v]
+    triple permit_triple, t2_result;
+    permit_triple.permit =  bc->PutINGate(one, 1, CLIENT);
+    permit_triple.deny =    bc->PutINGate(zero, 1, CLIENT);
+    permit_triple.na =      bc->PutINGate(zero, 1, CLIENT);
+
+    t2_result = triple_scaling(bc, permit_triple, inc_aq);
+
+    // c = 1
+    share *c1 = bc->PutEQGate(one_share, s_target_c);
+
+    // sum
+    share *c1_a_eq = bc->PutEQGate(Aq[0], s_target_a);
+    share *c1_v_eq = bc->PutEQGate(Vq[0], s_target_v);
+    share *c1_sum = bc->PutMULGate(c1_a_eq, c1_v_eq);
+    for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
+        c1_a_eq = bc->PutEQGate(Aq[i], s_target_a);
+        c1_v_eq = bc->PutEQGate(Vq[i], s_target_v);
+        share *c1_sum_int = bc->PutMULGate(c1_a_eq, c1_v_eq);
+        c1_sum = bc->PutADDGate(c1_sum, c1_sum_int);
+    }
+    share *t2_sum = bc->PutMULGate(c1, c1_sum);
+
+    // c = 2
+    share *two_share = bc->PutINGate(one, 2, CLIENT);
+    share *c2 = bc->PutEQGate(two_share, s_target_c);
+
+    // sum
+    share *c2_a_eq = bc->PutEQGate(Aq[0], s_target_a);
+    share *c2_v_eq = bc->PutEQGate(Vq[0], s_target_v);
+    share *c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
+    share *c2_sum = bc->PutMULGate(c2_a_eq, c2_v_eq);
+    for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
+        c2_a_eq = bc->PutEQGate(Aq[i], s_target_a);
+        c2_v_eq = bc->PutEQGate(Vq[i], s_target_v);
+        c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
+        share *c2_sum_int = bc->PutMULGate(c2_a_eq, c2_v_eq);
+        c2_sum = bc->PutADDGate(c2_sum, c2_sum_int);
+    }
+    c2 = bc->PutMULGate(c2, c2_sum);
+    t2_sum = bc->PutADDGate(t2_sum, c2);
+
+    // c = 3
+    share *three_share = bc->PutINGate(one, 3, CLIENT);
+    share *c3 = bc->PutEQGate(three_share, s_target_c);
+
+    // sum
+    share *c3_a_eq = bc->PutEQGate(Aq[0], s_target_a);
+    share *c3_v_eq = bc->PutGTGate(s_target_v, Vq[0]);
+    share *c3_sum = bc->PutMULGate(c3_a_eq, c3_v_eq);
+    for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
+        c3_a_eq = bc->PutEQGate(Aq[i], s_target_a);
+        c3_v_eq = bc->PutGTGate(s_target_v, Vq[0]);
+        share *c3_sum_int = bc->PutMULGate(c3_a_eq, c3_v_eq);
+        c3_sum = bc->PutADDGate(c3_sum, c3_sum_int);
+    }
+    c3 = bc->PutMULGate(c3, c3_sum);
+    t2_sum = bc->PutADDGate(t2_sum, c3);
+
+    // c = 4
+    share *four_share = bc->PutINGate(one, 4, CLIENT);
+    share *c4 = bc->PutEQGate(four_share, s_target_c);
+    
+    share *c4_a_eq = bc->PutEQGate(Aq[0], s_target_a);
+    share *c4_v_eq = bc->PutGTGate(Vq[0], s_target_v);
+    share *c4_sum = bc->PutMULGate(c4_a_eq, c4_v_eq);
+    for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
+        c4_a_eq = bc->PutEQGate(Aq[i], s_target_a);
+        c4_v_eq = bc->PutGTGate(Vq[0], s_target_v);
+        share *c4_sum_int = bc->PutMULGate(c4_a_eq, c4_v_eq);
+        c4_sum = bc->PutADDGate(c4_sum, c4_sum_int);
+    }
+    c4 = bc->PutMULGate(c4, c4_sum);
+    t2_sum = bc->PutADDGate(t2_sum, c4);
+
+    t2_result = triple_scaling(bc, t2_result, t2_sum);
+    result = triple_addition(bc, result, t2_result);
+
+    // Term 3   ([0], [1], [0]) if [a_1 != a] and [v_1 != v]
+    triple deny_triple, t3_result;
+    deny_triple.permit =  bc->PutINGate(zero, 1, CLIENT);
+    deny_triple.deny =    bc->PutINGate(one, 1, CLIENT);
+    deny_triple.na =      bc->PutINGate(zero, 1, CLIENT);
+
+    share *inc_vq = PutINCGate(bc, s_target_v, Vq, sizeof(*Vq) / sizeof(Vq[0]));
+    share *not_inc_vq = bc->PutSUBGate(one_share, inc_vq);
+    share *inc_comb = bc->PutMULGate(inc_aq, not_inc_vq);
+    t3_result = triple_scaling(bc, deny_triple, inc_comb);
+
+    result = triple_addition(bc, result, t3_result);
+
+    return result;
+
+}
+
+triple triple_addition(BooleanCircuit *bc, triple t1, triple t2)
+{
+    triple result;
+    result.permit = bc->PutADDGate(t1.permit, t2.permit);
+    result.deny =   bc->PutADDGate(t1.deny, t2.deny);
+    result.na =     bc->PutADDGate(t1.na, t2.na);     
+
+    return result;
+}
+
+triple triple_subtraction(BooleanCircuit *bc, triple t1, triple t2)
+{
+    triple result;
+    result.permit = bc->PutSUBGate(t1.permit, t2.permit);
+    result.deny =   bc->PutSUBGate(t1.deny, t2.deny);
+    result.na =     bc->PutSUBGate(t1.na, t2.na);     
+
+    return result;
+}
+
+triple triple_scaling(BooleanCircuit *bc, triple t, share *s)
+{
+    triple result;
+    result.permit = bc->PutMULGate(t.permit, s);
+    result.na = bc->PutMULGate(t.na, s);
+    result.deny = bc->PutMULGate(t.deny, s);
+
+    return result;
+}
+
+void triple_equality()
+{
+
 }
 
 share* PutINCGate(BooleanCircuit *bc, share *s_a, share *s_bs[], int size) {
 
     share *intermediate, *equal_zero, *zero, *one, *out;
     share *result = bc->PutSUBGate(s_bs[0], s_a);
-    std::cout << "using putinccircuit" << sizeof(*s_bs) / sizeof(s_bs[0]) << std::endl;
-    bc->PutPrintValueGate(s_a, "a value");
 
     for(int i=1;i<size; i++) {
-        std::cout << "test" << std::endl;
-        bc->PutPrintValueGate(s_bs[i], "initial vals");
         intermediate = bc->PutSUBGate(s_bs[i], s_a);
-        bc->PutPrintValueGate(intermediate, "int vals");
         result = bc->PutMULGate(result, intermediate);
     }
-
-    bc->PutPrintValueGate(result, "mul result");
 
     uint32_t zero_int = 0;
     zero = bc->PutINGate(zero_int, 1, CLIENT);
     out = bc->PutEQGate(result, zero);
 
     return out;
-}
-
-
-void atomic_evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a, share *s_target_v, share *s_target_c)
-{
-    // Term shares
-    share *s_t1_A, *s_t1_D, *s_t1_NA, *s_t2_A, *s_t2_D, *s_t2_NA, *s_t3_A, *s_t3_D, *s_t3_NA;
-    uint32_t zero = 0;
-    uint32_t one = 1;
-
-    // Create NA: ([0], [0], [1])
-    s_t1_A = bc->PutINGate(zero, 1, CLIENT);
-    s_t1_D = bc->PutINGate(zero, 1, CLIENT);
-    s_t1_NA = bc->PutINGate(one, 1, CLIENT);
-
-    share *one_share = bc->PutINGate(one, 1, CLIENT);
-    share *included = PutINCGate(bc, s_target_a, Aq, sizeof(*Aq) / sizeof(Aq[0]));
-    share *int_result = bc->PutSUBGate(one_share, included);
-
-    s_t1_NA = bc->PutANDGate(s_t1_NA, int_result);
-
-    // Term 2   ([1], [0], [0]) if [a_1 = a] and [v_1 = v]
-    
-
-    // Term 3   ([0], [1], [0]) if [a_1 != a] and [v_1 != v]
-    
 }
 
 void smax(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)

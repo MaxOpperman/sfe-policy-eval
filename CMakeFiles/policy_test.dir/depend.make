@@ -28,6 +28,7 @@ CMakeFiles/policy_test.dir/policy_test.cpp.o: ABY/src/abycore/circuit/arithmetic
 CMakeFiles/policy_test.dir/policy_test.cpp.o: ABY/src/abycore/circuit/booleancircuits.h
 CMakeFiles/policy_test.dir/policy_test.cpp.o: ABY/src/abycore/circuit/circuit.h
 CMakeFiles/policy_test.dir/policy_test.cpp.o: ABY/src/abycore/circuit/share.h
+CMakeFiles/policy_test.dir/policy_test.cpp.o: ABY/src/abycore/sharing/sharing.h
 CMakeFiles/policy_test.dir/policy_test.cpp.o: common/policy.h
 CMakeFiles/policy_test.dir/policy_test.cpp.o: policy_test.cpp
 CMakeFiles/policy_test.dir/policy_test.cpp.o: /usr/include/x86_64-linux-gnu/gmp.h

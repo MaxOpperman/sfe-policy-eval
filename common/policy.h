@@ -28,7 +28,7 @@
 
 struct query { uint32_t attr; uint32_t value; };
 struct target { uint32_t attr; uint32_t value; uint32_t condition; };
-struct composed_target { target t1; target t2; int combiner; };
+struct composite_target { target t1; target t2; int combiner; };
 struct triple { share* permit; share* deny; share* na; };
 
 int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
@@ -40,6 +40,7 @@ share* PutINCGate(BooleanCircuit *bc, share *s_el, share *s_list[], int size);
 
 // Atomic evaluation
 triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q, target t);
+triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q, composite_target t);
 triple evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a, share *s_target_v, share *s_target_c);
 
 
@@ -48,6 +49,18 @@ triple triple_addition(BooleanCircuit *bc, triple t1, triple t2);
 triple triple_subtraction(BooleanCircuit *bc, triple t1, triple t2);
 triple triple_scaling(BooleanCircuit *bc, triple t1, share *s);
 triple triple_equality(BooleanCircuit *bc, triple t1, triple t2);
+
+
+// Combination rules
+triple smax(BooleanCircuit *bc, triple t1, triple t2);
+triple smin(BooleanCircuit *bc, triple t1, triple t2);
+triple wmax(BooleanCircuit *bc, triple t1, triple t2);
+triple wmin(BooleanCircuit *bc, triple t1, triple t2);
+triple Complement(BooleanCircuit *bc, triple t1);
+triple Optional(BooleanCircuit *bc, triple t1);
+triple PermitOverride(BooleanCircuit *bc, triple t1, triple t2);
+triple DenyOverride(BooleanCircuit *bc, triple t1, triple t2);
+triple FirstAttribute(BooleanCircuit *bc, triple t1, triple t2);
 
 
 #endif /* __POLICY_H_ */

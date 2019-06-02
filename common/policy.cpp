@@ -20,15 +20,15 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
     
     target t2_1 = {3, 35, 3};
     target t2_2 = {2, 25, 1};
-    composed_target t2 = {t2_1, t2_2, 2};
+    composite_target t2 = {t2_1, t2_2, 2};
     
-    target t3 = {1, 13, 2};
+    target t3 = {1, 22, 1};
 
     target t4_1 = {1, 12, 1};
     target t4_2 = {1, 13, 2};
-    composed_target t4 = {t4_1, t4_2, 5};
+    composite_target t4 = {t4_1, t4_2, 7};
 
-    triple t = evaluate((BooleanCircuit*) circ, role, bitlen, queries[0], t1);
+    triple t = evaluate((BooleanCircuit*) circ, role, bitlen, queries[0], t3);
 
     //share* permit = result.permit;
     //share* na = result.na;
@@ -48,12 +48,54 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
     uint32_t na_output = s_na->get_clear_value<uint32_t>();
     uint32_t deny_output = s_deny->get_clear_value<uint32_t>();
 
-    std::cout << "Output: ([" << permit_output << "], [" << deny_output << "], " << na_output << "])" << std::endl;
+    std::cout << "Output: ([" << permit_output << "], [" << deny_output << "], [" << na_output << "])" << std::endl;
 
 	delete party;
 	return 0;
 }
 
+triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q, composite_target t) {
+
+    triple result, r1, r2;
+    r1 = evaluate(bc, role, bitlen, q, t.t1);
+    if(&t.t2 != NULL) {
+        triple r2 = evaluate(bc, role, bitlen, q, t.t2);
+    }
+
+    std::cout << "Combining results using combination rule" << std::endl;
+
+    switch(t.combiner) {
+        case 1:
+            result = smax(bc, r1, r2);
+            break;
+        case 2:
+            result = smin(bc, r1, r2);
+            break;
+        case 3:
+            result = wmax(bc, r1, r2);
+            break;
+        case 4:
+            result = wmin(bc, r1, r2);
+            break;
+        case 5:
+            result = Complement(bc, r1);
+            break;
+        case 6:
+            result = Optional(bc, r1);
+            break;
+        case 7:
+            result = PermitOverride(bc, r1, r2);
+            break;
+        case 8:
+            result = DenyOverride(bc, r1, r2);
+            break;
+        default:
+            result = FirstAttribute(bc, r1, r2);
+
+    }
+    
+    return result;
+}
 /*
  * Setting up atomic evaluation formula
  */
@@ -124,14 +166,14 @@ triple evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a,
     share *t2_sum = bc->PutMULGate(c1, c1_sum);
 
     // c = 2
-    share *two_share = bc->PutINGate(one, 2, CLIENT);
+    share *two_share = bc->PutINGate((uint32_t) 2, 3, CLIENT);
     share *c2 = bc->PutEQGate(two_share, s_target_c);
 
     // sum
     share *c2_a_eq = bc->PutEQGate(Aq[0], s_target_a);
     share *c2_v_eq = bc->PutEQGate(Vq[0], s_target_v);
     share *c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
-    share *c2_sum = bc->PutMULGate(c2_a_eq, c2_v_eq);
+    share *c2_sum = bc->PutMULGate(c2_a_eq, c2_v_neq);
     for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
         c2_a_eq = bc->PutEQGate(Aq[i], s_target_a);
         c2_v_eq = bc->PutEQGate(Vq[i], s_target_v);
@@ -143,7 +185,7 @@ triple evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a,
     t2_sum = bc->PutADDGate(t2_sum, c2);
 
     // c = 3
-    share *three_share = bc->PutINGate(one, 3, CLIENT);
+    share *three_share = bc->PutINGate((uint32_t) 3, 3, CLIENT);
     share *c3 = bc->PutEQGate(three_share, s_target_c);
 
     // sum
@@ -158,9 +200,9 @@ triple evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a,
     }
     c3 = bc->PutMULGate(c3, c3_sum);
     t2_sum = bc->PutADDGate(t2_sum, c3);
-
+    
     // c = 4
-    share *four_share = bc->PutINGate(one, 4, CLIENT);
+    share *four_share = bc->PutINGate((uint32_t) 4, 3, CLIENT);
     share *c4 = bc->PutEQGate(four_share, s_target_c);
     
     share *c4_a_eq = bc->PutEQGate(Aq[0], s_target_a);
@@ -184,9 +226,8 @@ triple evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a,
     deny_triple.deny =    bc->PutINGate(one, 1, CLIENT);
     deny_triple.na =      bc->PutINGate(zero, 1, CLIENT);
 
-    share *inc_vq = PutINCGate(bc, s_target_v, Vq, sizeof(*Vq) / sizeof(Vq[0]));
-    share *not_inc_vq = bc->PutSUBGate(one_share, inc_vq);
-    share *inc_comb = bc->PutMULGate(inc_aq, not_inc_vq);
+    share *not_eq_cmp = bc->PutSUBGate(one_share, t2_sum);
+    share *inc_comb = bc->PutMULGate(inc_aq, not_eq_cmp);
     t3_result = triple_scaling(bc, deny_triple, inc_comb);
 
     result = triple_addition(bc, result, t3_result);
@@ -247,162 +288,193 @@ share* PutINCGate(BooleanCircuit *bc, share *s_a, share *s_bs[], int size) {
     return out;
 }
 
-void smax(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple smax(BooleanCircuit *bc, triple p1, triple p2)
 {
+    triple result;
     share *s_op_temp1, *s_op_temp2, *s_inv_1, *s_inv_2;
 
     // pi_0(p1 smax p2) = pi_0(p1) AND pi_0(p2)
-    new_p_D = bc->PutANDGate(s_p1_D, s_p2_D);
+    result.deny = bc->PutANDGate(p1.deny, p2.deny);
 
     // pi_NA(p1 smax p2) = (pi_NA(p1) AND NOT pi_1(p2)) OR (pi_NA(p2) AND NOT pi_1(p1))
-    s_inv_1 = bc->PutINVGate(s_p2_A);
-    s_inv_2 = bc->PutINVGate(s_p1_A);
+    s_inv_1 = bc->PutINVGate(p2.permit);
+    s_inv_2 = bc->PutINVGate(p1.permit);
 
-    s_op_temp1 = bc->PutANDGate(s_p1_NA, s_inv_1);
-    s_op_temp2 = bc->PutANDGate(s_p2_NA, s_inv_2);
+    s_op_temp1 = bc->PutANDGate(p1.na, s_inv_1);
+    s_op_temp2 = bc->PutANDGate(p2.na, s_inv_2);
 
-    new_p_NA = bc->PutORGate(s_op_temp1, s_op_temp2);
+    result.na = bc->PutORGate(s_op_temp1, s_op_temp2);
     
     // pi_1(p1 smax p2) = pi_1(p1) OR pi_1(p2)
-    new_p_A = bc->PutORGate(s_p1_A, s_p2_A);
+    result.permit = bc->PutORGate(p1.permit, p2.permit);
+
+    return result;
 }
 
-void smin(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple smin(BooleanCircuit *bc, triple p1, triple p2)
 {
+    triple result;
     share *s_op_temp1, *s_op_temp2, *s_inv_1, *s_inv_2;
 
     // pi_0(p1 smin p2) = pi_0(p1) OR pi_0(p2)
-    new_p_D = bc->PutORGate(s_p1_D, s_p2_D);
+    result.deny = bc->PutORGate(p1.deny, p2.deny);
 
     // pi_NA(p1 smin p2) = (pi_NA(p1) AND NOT pi_0(p2)) OR (pi_NA(p2) AND NOT pi_0(p1))
-    s_inv_1 = bc->PutINVGate(s_p2_D);
-    s_inv_2 = bc->PutINVGate(s_p1_D);
+    s_inv_1 = bc->PutINVGate(p2.deny);
+    s_inv_2 = bc->PutINVGate(p1.deny);
 
-    s_op_temp1 = bc->PutANDGate(s_p1_NA, s_inv_1);
-    s_op_temp2 = bc->PutANDGate(s_p2_NA, s_inv_2);
+    s_op_temp1 = bc->PutANDGate(p1.na, s_inv_1);
+    s_op_temp2 = bc->PutANDGate(p2.na, s_inv_2);
 
-    new_p_NA = bc->PutORGate(s_op_temp1, s_op_temp2);
+    result.na = bc->PutORGate(s_op_temp1, s_op_temp2);
     
     // pi_1(p1 smin p2) = pi_1(p1) AND pi_1(p2)
-    new_p_A = bc->PutANDGate(s_p1_A, s_p2_A);
+    result.permit = bc->PutANDGate(p1.permit, p2.permit);
+
+    return result;
 }
 
-void wmax(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple wmax(BooleanCircuit *bc, triple p1, triple p2)
 {
+    triple result;
     share *s_op_temp1, *s_op_temp2, *s_inv_1, *s_inv_2;
 
     // pi_0(p1 wmax p2) = pi_0(p1) AND pi_0(p2)
-    new_p_D = bc->PutANDGate(s_p1_D, s_p2_D);
+    result.deny = bc->PutANDGate(p1.deny, p2.deny);
 
     // pi_NA(p1 wmax p2) = pi_NA(p1) OR p_NA(p2)
-    new_p_NA = bc->PutORGate(s_p1_NA, s_p2_NA);
+    result.na = bc->PutORGate(p1.na, p2.na);
 
     // pi_1(p1 wmax p2) = (pi_1(p1) AND NOT pi_NA(p2)) OR (pi_1(p2) AND pi_NA(p1)) 
-    s_inv_1 = bc->PutINVGate(s_p2_NA);
-    s_inv_2 = bc->PutINVGate(s_p1_NA);
+    s_inv_1 = bc->PutINVGate(p2.na);
+    s_inv_2 = bc->PutINVGate(p1.na);
 
-    s_op_temp1 = bc->PutANDGate(s_p1_A, s_inv_1);
-    s_op_temp2 = bc->PutANDGate(s_p2_A, s_inv_2);
+    s_op_temp1 = bc->PutANDGate(p1.permit, s_inv_1);
+    s_op_temp2 = bc->PutANDGate(p2.permit, s_inv_2);
 
-    new_p_A = bc->PutORGate(s_op_temp1, s_op_temp2);
+    result.permit = bc->PutORGate(s_op_temp1, s_op_temp2);
+
+    return result;
 }
 
-void wmin(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple wmin(BooleanCircuit *bc, triple p1, triple p2)
 {
+    triple result;
+
     share *s_op_temp1, *s_op_temp2, *s_inv_1, *s_inv_2;
 
     // pi_1(p1 wmin p2) = (pi_0(p1) AND NOT pi_NA(p2)) OR (pi_0(p2) AND pi_NA(p1)) 
-    s_inv_1 = bc->PutINVGate(s_p2_NA);
-    s_inv_2 = bc->PutINVGate(s_p1_NA);
+    s_inv_1 = bc->PutINVGate(p2.na);
+    s_inv_2 = bc->PutINVGate(p1.na);
 
-    s_op_temp1 = bc->PutANDGate(s_p1_D, s_inv_1);
-    s_op_temp2 = bc->PutANDGate(s_p2_D, s_inv_2);
+    s_op_temp1 = bc->PutANDGate(p1.deny, s_inv_1);
+    s_op_temp2 = bc->PutANDGate(p2.deny, s_inv_2);
 
-    new_p_A = bc->PutORGate(s_op_temp1, s_op_temp2);
+    result.permit = bc->PutORGate(s_op_temp1, s_op_temp2);
 
     // pi_NA(p1 wmin p2) = pi_NA(p1) OR p_NA(p2)
-    new_p_NA = bc->PutORGate(s_p1_NA, s_p2_NA);
+    result.na = bc->PutORGate(p1.na, p2.na);
 
     // pi_1(p1 wmin p2) = pi_1(p1) AND pi_1(p2)   
-    new_p_A = bc->PutANDGate(s_p1_A, s_p2_A);
+    result.deny = bc->PutANDGate(p1.permit, p2.permit);
+
+    return result;
 }
 
-void Complement(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple Complement(BooleanCircuit *bc, triple p1)
 {
+    triple result;
+
     // pi_0(p) = pi_1(p)
-    new_p_D = s_p1_A;
+    result.deny = p1.permit;
 
     // pi_NA(p) = pi_NA(p)
-    new_p_NA = s_p1_NA;
+    result.na = p1.na;
 
     //pi_1(p) = pi_0(p)
-    new_p_A = s_p1_D;
+    result.permit = p1.deny;
+
+    return result;
 }
 
-void Optional(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple Optional(BooleanCircuit *bc, triple p1)
 {
+    triple result;
+
     // pi_0(p) = pi_1(p)
-    new_p_D = bc->PutORGate(s_p1_A, s_p1_NA);
+    result.deny = bc->PutORGate(p1.permit, p1.na);
 
     // pi_NA(p) = pi_NA(p)
-    new_p_NA = s_p1_NA;
+    result.na = p1.na;
 
     //pi_1(p) = pi_0(p)
-    new_p_A = s_p1_A;
+    result.permit = p1.permit;
+
+    return result;
 }
 
-void PermitOverride(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple PermitOverride(BooleanCircuit *bc, triple p1, triple p2)
 {
+    triple result;
+
     share *s_op, *s_op_temp1, *s_op_temp2, *s_inv_1, *s_inv_2;
 
     //pi_0(p1 PO p2) = (pi_0(p1) AND pi_1(p2)) OR (pi_0(p2) AND pi_1(p1))
-    s_inv_1 = bc->PutINVGate(s_p2_A);
-    s_inv_2 = bc->PutINVGate(s_p1_A);
+    s_inv_1 = bc->PutINVGate(p2.permit);
+    s_inv_2 = bc->PutINVGate(p1.permit);
 
-    s_op_temp1 = bc->PutANDGate(s_p1_D, s_inv_1);
-    s_op_temp2 = bc->PutANDGate(s_p2_D, s_inv_2);
+    s_op_temp1 = bc->PutANDGate(p1.deny, s_inv_1);
+    s_op_temp2 = bc->PutANDGate(p2.deny, s_inv_2);
 
-    new_p_D = bc->PutORGate(s_op_temp1, s_op_temp2);
+    result.deny = bc->PutORGate(s_op_temp1, s_op_temp2);
 
     //pi_NA(p1 PO p2) = pi_NA(p1) AND pi_NA(p2)
-    new_p_NA = bc->PutANDGate(s_p1_NA, s_p2_NA);
+    result.na = bc->PutANDGate(p1.na, p2.na);
 
     //pi_1(p1 PO p2) = (pi_1(p1) OR pi_1(p2))
-    new_p_A = bc->PutORGate(s_p1_A, s_p2_A);
+    result.permit = bc->PutORGate(p1.permit, p2.permit);
+
+    return result;
 }
 
-void DenyOverride(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple DenyOverride(BooleanCircuit *bc, triple p1, triple p2)
 {
+    triple result;
     share *s_op, *s_op_temp1, *s_op_temp2, *s_inv_1, *s_inv_2;
 
     //pi_0 (p1 DO p2) = pi_0(p1) OR pi_0(p2)
-    new_p_D = bc->PutORGate(s_p1_D, s_p2_D);
+    result.deny = bc->PutORGate(p1.deny, p2.deny);
 
     //pi_NA(p1 DO p2) = pi_NA(p1) AND pi_NA(p2)
-    new_p_NA = bc->PutANDGate(s_p1_NA, s_p2_NA);
+    result.na = bc->PutANDGate(p1.na, p2.na);
 
     //pi_1(p1 DO p2) = (pi_1(p1) AND pi_0(p2)) OR (pi_1(p2) AND pi_0(p1))
-    s_inv_1 = bc->PutINVGate(s_p2_D);
-    s_inv_2 = bc->PutINVGate(s_p1_D);
+    s_inv_1 = bc->PutINVGate(p2.deny);
+    s_inv_2 = bc->PutINVGate(p1.deny);
 
-    s_op_temp1 = bc->PutANDGate(s_p1_A, s_inv_1);
-    s_op_temp2 = bc->PutANDGate(s_p2_A, s_inv_2);
+    s_op_temp1 = bc->PutANDGate(p1.permit, s_inv_1);
+    s_op_temp2 = bc->PutANDGate(p2.permit, s_inv_2);
 
-    new_p_A = bc->PutORGate(s_op_temp1, s_op_temp2);
+    result.permit = bc->PutORGate(s_op_temp1, s_op_temp2);
+
+    return result;
 }
 
-void FirstAttribute(BooleanCircuit *bc, share *s_p1_D, share *s_p1_NA, share *s_p1_A, share *s_p2_D, share *s_p2_NA, share *s_p2_A, share* &new_p_D, share* &new_p_NA, share* &new_p_A)
+triple FirstAttribute(BooleanCircuit *bc, triple p1, triple p2)
 {
+    triple result;
     share *s_op_temp1, *s_op_temp2;
 
     //pi_0 (p1 FA p2) = pi_0(p1) OR (pi_NA(p1) AND pi_0(p2))
-    s_op_temp1 = bc->PutANDGate(s_p1_NA, s_p2_D);
-    new_p_D = bc->PutORGate(s_p1_D, s_op_temp1);
+    s_op_temp1 = bc->PutANDGate(p1.na, p2.deny);
+    result.deny = bc->PutORGate(p1.deny, s_op_temp1);
 
     //pi_NA(p1 FA p2) = pi_NA(p1) AND pi_NA(p2)
-    new_p_NA = bc->PutANDGate(s_p1_NA, s_p2_NA);
+    result.na = bc->PutANDGate(p1.na, p2.na);
 
     //pi_1 (p1 FA p2) = pi_1(p1) OR (pi_NA(p1) AND pi_1(p2))
-    s_op_temp2 = bc->PutANDGate(s_p1_NA, s_p2_A);
-    new_p_A = bc->PutORGate(s_p1_A, s_op_temp2);
+    s_op_temp2 = bc->PutANDGate(p1.na, p2.permit);
+    result.permit = bc->PutORGate(p1.permit, s_op_temp2);
+
+    return result;
 }

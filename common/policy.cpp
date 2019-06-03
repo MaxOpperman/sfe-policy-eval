@@ -538,7 +538,8 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
     Node *policy = new Operation(
         NOT, 
         new Target(
-            1, 12, 1, new Operation(
+            1, 12, 1, 
+            new Operation(
                 SMIN, 
                 new Target(
                     1, 12, 1,

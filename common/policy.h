@@ -67,9 +67,7 @@ public:
     }
 
     triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q) ;
-
     triple target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q);
-    triple target_evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a, share *s_target_v, share *s_target_c);
 
 };
 

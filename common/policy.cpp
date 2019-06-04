@@ -296,30 +296,19 @@ triple Target::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query 
 
 // Setup target evaluation
 triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q) {
-    share* attr_share, *value_share, *target_attr_share, *target_value_share, *target_condition_share;
+    share* attr_share, *value_share, *s_target_a, *s_target_v, *s_target_c;
     share* Aq[1] = {};
     share* Vq[1] = {};
 
-    std::cout << "Given input query {" << q.attr << ", " << q.value << "}" << std::endl;
-    attr_share = bc->PutINGate(q.attr, bitlen, SERVER);
+    attr_share = bc->PutINGate(q.attr, bitlen, CLIENT);
     value_share = bc->PutINGate(q.value, bitlen, CLIENT);
-    std::cout << "Target {" << this->attr << ", " << this->value << ", " << this->condition <<"}" << std::endl;
-    target_attr_share = bc->PutINGate(this->attr, bitlen, SERVER);
-    target_value_share = bc->PutINGate(this->value, bitlen, SERVER);
-    target_condition_share = bc->PutINGate(this->condition, bitlen, SERVER);
     Aq[0] = attr_share;
     Vq[0] = value_share;
 
-    triple r = target_evaluate(bc, Aq, Vq, target_attr_share, target_value_share, target_condition_share); 
-    
-    return r;
-}
+    s_target_a = bc->PutINGate(this->attr, bitlen, SERVER);
+    s_target_v = bc->PutINGate(this->value, bitlen, SERVER);
+    s_target_c = bc->PutINGate(this->condition, bitlen, SERVER);
 
-// Atomic target evaluation
-triple Target::target_evaluate(BooleanCircuit *bc, share* Aq[], share* Vq[], share *s_target_a, share *s_target_v, share *s_target_c)
-{
-    std::cout << "Starting the actual evaluation..." << std::endl;
-    // Some initial values
     triple result;
     uint32_t zero = 0;
     uint32_t one = 1;

@@ -504,6 +504,9 @@ triple Operation::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, que
     return result;
 }
 
+
+
+
 int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
 		uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg,
 		e_sharing sharing) {
@@ -519,22 +522,14 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
 
     // Targets
     Target *t1 = new Target(1, 12, 1, NULL, NULL);
-    /*target t1 = {1, 12, 1};
-    
-    target t2_1 = {3, 35, 3};
-    target t2_2 = {2, 25, 1};
-    composite_target t2 = {t2_1, t2_2, 2};
-    */
     Target *t3 = new Target(1, 22, 1, NULL, NULL);
-    /*
-    target t4_1 = {1, 12, 1};
-    target t4_2 = {1, 13, 2};
-    composite_target t4 = {t4_1, t4_2, 7};*/
 
-    //triple t = t1->target_evaluate((BooleanCircuit*) circ, role, bitlen, queries[0]);
+    // Encrypted 0 and 1
     share* one = circ->PutINGate((uint32_t) 1, 1, CLIENT);
     share* zero = circ->PutINGate((uint32_t) 0, 1, CLIENT);
     
+    // Policies
+    // This is figure 2 from the paper.
     Node *policy = new Operation(
         NOT, 
         new Target(
@@ -542,11 +537,11 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
             new Operation(
                 SMIN, 
                 new Target(
-                    1, 12, 1,
+                    3, 4, 4,
                     new Operation(
                         WMAX,
                         new Target(
-                            1, 12, 1,
+                            1, 6, 2,
                             new Leaf(one)
                         ),
                         new Leaf(zero)
@@ -555,11 +550,11 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
                 new Operation(
                     PO,
                     new Target(
-                        1, 12, 1,
+                        1, 5, 3,
                         new Leaf(one)
                     ),
                     new Target(
-                        1, 12, 1,
+                        6, 12, 1,
                         new Leaf(one)
                     )
                 )
@@ -567,13 +562,17 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
         )
     );
 
+    // Test policy
     Node *policy2 = new Operation(
-        DO,
-        new Leaf(one),
-        new Leaf(one)
+        PO,
+        new Target(
+            1, 12, 2,
+            new Leaf(one)
+        ),
+        new Leaf(zero)
     );
 
-    triple t = policy2->evaluate((BooleanCircuit *)circ, role, bitlen, queries[0]);
+    triple t = policy->evaluate((BooleanCircuit *)circ, role, bitlen, queries[0]);
     
     share *s_permit = circ->PutOUTGate(t.permit, ALL);
     share *s_na = circ->PutOUTGate(t.na, ALL);

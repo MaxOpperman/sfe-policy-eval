@@ -31,6 +31,13 @@ public:
         return t;
     }
 
+    virtual std::string print()
+    {
+        std::string s = "test";
+
+        return s;
+    }
+
     triple triple_addition(BooleanCircuit *bc, triple t1, triple t2);
     triple triple_subtraction(BooleanCircuit *bc, triple t1, triple t2);
     triple triple_scaling(BooleanCircuit *bc, triple t, share *s);
@@ -69,19 +76,37 @@ public:
     triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q) ;
     triple target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q);
 
+    std::string print()
+    {
+        std::string output = "";
+        output = output + "t, " + this->child1->print();
+        if(this->child2 != NULL) {
+            output = output + this->child2->print();
+        }
+        return output;
+    }
+
 };
 
 class Leaf: public Node
 {
 public:
     share* value;
+    int clear_value;
 
-    Leaf(share* val)
-        : Node(NULL, NULL), value(val)
+    Leaf(share* val, int cval)
+        : Node(NULL, NULL), value(val), clear_value(cval)
     {
     }
 
     triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q);
+
+    std::string print()
+    {
+        std::string output = "[" + std::to_string(clear_value) + "]";
+        return output;
+    }
+
 
 };
 
@@ -100,6 +125,46 @@ public:
     }
 
     triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q);
+
+
+    std::string print()
+    {
+        std::string output = "";
+        switch(this->rule) {
+            case NOT:
+                output = output + "not(";
+                break;
+            case WEA:
+                output = output + "wea(";
+                break;
+            case SMAX:
+                output = output + "smax(";
+                break;
+            case SMIN:
+                output = output + "smin(";
+                break;
+            case WMAX:
+                output = output + "wmax(";
+                break;
+            case WMIN:
+                output = output + "wmin(";
+                break;
+            case PO:
+                output = output + "po(";
+                break;
+            case DO:
+                output = output + "do(";
+                break;
+            default:
+                output = output + "fa(";
+        }
+        output = output + this->child1->print();
+        if(this->child2 != NULL) {
+            output = output + "," + this->child2->print();
+        }
+        output = output + ")";
+        return output;
+    }
 
 };
 

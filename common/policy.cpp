@@ -493,8 +493,23 @@ triple Operation::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, que
     return result;
 }
 
+/*Operation* generate_policy(int height)
+{
+    if(height = 1) {
+        uint32_t val = rand() % 2;
+        share* val_share = bc->PutINGate(val, 1, SERVER);
+        return new Leaf(val_share);
+    }
+    else {
+        int node_type = rand() % 2;
+        if(node_type == 0) {
 
+        }
+        else {
 
+        }
+    }
+} */
 
 int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
 		uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg,
@@ -508,10 +523,6 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
 
     // Query
     query queries[1] = {{1, 12}};
-
-    // Targets
-    Target *t1 = new Target(1, 12, 1, NULL, NULL);
-    Target *t3 = new Target(1, 22, 1, NULL, NULL);
 
     // Encrypted 0 and 1
     share* one = circ->PutINGate((uint32_t) 1, 1, CLIENT);
@@ -531,37 +542,39 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
                         WMAX,
                         new Target(
                             1, 6, 2,
-                            new Leaf(one)
+                            new Leaf(one, 1)
                         ),
-                        new Leaf(zero)
+                        new Leaf(zero, 0)
                     )
                 ),
                 new Operation(
                     PO,
                     new Target(
                         1, 5, 3,
-                        new Leaf(one)
+                        new Leaf(one, 1)
                     ),
                     new Target(
                         6, 12, 1,
-                        new Leaf(one)
+                        new Leaf(one, 1)
                     )
                 )
             )
         )
     );
 
+
     // Test policy
     Node *policy2 = new Operation(
         PO,
         new Target(
             1, 12, 2,
-            new Leaf(one)
+            new Leaf(one, 1)
         ),
-        new Leaf(zero)
+        new Leaf(zero, 0)
     );
 
-    triple t = policy->evaluate((BooleanCircuit *)circ, role, bitlen, queries[0]);
+    std::cout << policy2->print() << std::endl;
+    triple t = policy2->evaluate((BooleanCircuit *)circ, role, bitlen, queries[0]);
     
     share *s_permit = circ->PutOUTGate(t.permit, ALL);
     share *s_na = circ->PutOUTGate(t.na, ALL);

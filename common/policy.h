@@ -10,8 +10,21 @@
 #include <cassert>
 #include "policy.h"
 
-struct query { uint32_t attr; uint32_t value; };
-struct triple { share* permit; share* deny; share* na; };
+struct Pair
+{
+    uint32_t attribute;
+    uint32_t value;
+};
+
+typedef std::vector<Pair> Query;
+
+struct Triple 
+{ 
+    share* t; 
+    share* f; 
+    share* u; 
+};
+
 enum CombinationRule { NOT, WEA, SMAX, SMIN, WMAX, WMIN, PO, DO, FA };
 
 class Node {
@@ -24,9 +37,9 @@ public:
     {
     }
 
-    virtual triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q)
+    virtual Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q)
     {
-        triple t;
+        Triple t;
 
         return t;
     }
@@ -38,20 +51,26 @@ public:
         return s;
     }
 
-    triple triple_addition(BooleanCircuit *bc, triple t1, triple t2);
-    triple triple_subtraction(BooleanCircuit *bc, triple t1, triple t2);
-    triple triple_scaling(BooleanCircuit *bc, triple t, share *s);
-    triple triple_equality();
 
-    triple smax(BooleanCircuit *bc, triple t1, triple t2);
-    triple smin(BooleanCircuit *bc, triple t1, triple t2);
-    triple wmax(BooleanCircuit *bc, triple t1, triple t2);
-    triple wmin(BooleanCircuit *bc, triple t1, triple t2);
-    triple Not(BooleanCircuit *bc, triple t1);
-    triple wea(BooleanCircuit *bc, triple t1);
-    triple po(BooleanCircuit *bc, triple t1, triple t2);
-    triple Do(BooleanCircuit *bc, triple t1, triple t2);
-    triple fa(BooleanCircuit *bc, triple t1, triple t2);
+    virtual int type()
+    {
+        return 0;
+    }
+
+    Triple Triple_addition(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple Triple_subtraction(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple Triple_scaling(BooleanCircuit *bc, Triple t, share *s);
+    Triple Triple_equality();
+
+    Triple smax(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple smin(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple wmax(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple wmin(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple Not(BooleanCircuit *bc, Triple t1);
+    Triple wea(BooleanCircuit *bc, Triple t1);
+    Triple po(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple Do(BooleanCircuit *bc, Triple t1, Triple t2);
+    Triple fa(BooleanCircuit *bc, Triple t1, Triple t2);
 
     share* PutINCGate(BooleanCircuit *bc, share *s_a, share *s_bs[], int size);
 
@@ -60,30 +79,40 @@ public:
 class Target : public Node
 {
 public: 
-    uint32_t attr;
+    uint32_t attribute;
     uint32_t value;
     uint32_t condition;
 
     Target(uint32_t a, uint32_t v, uint32_t c, Node *c1, Node *c2)
-        : Node(c1, c2), attr(a), value(v), condition(c)
+        : Node(c1, c2), attribute(a), value(v), condition(c)
     {
     }
     Target(uint32_t a, uint32_t v, uint32_t c, Node *c1)
-        : Node(c1, NULL), attr(a), value(v), condition(c)
+        : Node(c1, NULL), attribute(a), value(v), condition(c)
     {
     }
 
-    triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q) ;
-    triple target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q);
+    Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) ;
+    Triple target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
 
     std::string print()
     {
         std::string output = "";
-        output = output + "t, " + this->child1->print();
+        if(this->child1->type() == 1) {
+            output = output + "(t, " + this->child1->print() + ")";
+        }
+        else {
+            output = output + "t, " + this->child1->print();
+        }
         if(this->child2 != NULL) {
             output = output + this->child2->print();
         }
         return output;
+    }
+
+    int type()
+    {
+        return 2;
     }
 
 };
@@ -99,7 +128,7 @@ public:
     {
     }
 
-    triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q);
+    Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
 
     std::string print()
     {
@@ -107,6 +136,10 @@ public:
         return output;
     }
 
+    int type()
+    {
+        return 1;
+    }
 
 };
 
@@ -124,7 +157,7 @@ public:
     {
     }
 
-    triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, query q);
+    Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
 
 
     std::string print()
@@ -164,6 +197,11 @@ public:
         }
         output = output + ")";
         return output;
+    }
+
+    int type()
+    {
+        return 3;
     }
 
 };

@@ -3,7 +3,7 @@
 #include "../ABY/src/abycore/sharing/sharing.h"
 
 /*
- * Combiution rules
+ * Combination rules
  */
 
 Triple Node::smax(BooleanCircuit *bc, Triple p1, Triple p2)
@@ -116,7 +116,7 @@ Triple Node::Not(BooleanCircuit *bc, Triple p1)
     return result;
 }
 
-// Optioul rule
+// Optional rule
 Triple Node::wea(BooleanCircuit *bc, Triple p1)
 {
     Triple result;
@@ -133,7 +133,7 @@ Triple Node::wea(BooleanCircuit *bc, Triple p1)
     return result;
 }
 
-// t override rule
+// permit override rule
 Triple Node::po(BooleanCircuit *bc, Triple p1, Triple p2)
 {
     Triple result;
@@ -158,7 +158,7 @@ Triple Node::po(BooleanCircuit *bc, Triple p1, Triple p2)
     return result;
 }
 
-// f override rule
+// deny override rule
 Triple Node::Do(BooleanCircuit *bc, Triple p1, Triple p2)
 {
     Triple result;
@@ -294,7 +294,7 @@ Triple Target::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query 
 
 // Setup target evaluation
 Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) {
-    share* attr_share, *value_share, *s_target_a, *s_target_v, *s_target_c;
+    share* attr_share, *value_share;
     share* Aq[1] = {};
     share* Vq[1] = {};
 
@@ -302,10 +302,6 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
     value_share = bc->PutINGate(q[0].value, bitlen, CLIENT);
     Aq[0] = attr_share;
     Vq[0] = value_share;
-
-    s_target_a = bc->PutINGate(this->attribute, bitlen, SERVER);
-    s_target_v = bc->PutINGate(this->value, bitlen, SERVER);
-    s_target_c = bc->PutINGate(this->condition, bitlen, SERVER);
 
     Triple result;
     uint32_t zero = 0;
@@ -318,7 +314,7 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
     U.u = bc->PutINGate(one, 1, CLIENT);
 
     share *one_share = bc->PutINGate(one, 1, CLIENT);
-    share *inc_aq = PutINCGate(bc, s_target_a, Aq, sizeof(*Aq) / sizeof(Aq[0]));
+    share *inc_aq = PutINCGate(bc, this->attribute, Aq, sizeof(*Aq) / sizeof(Aq[0]));
     share *int_result = bc->PutSUBGate(one_share, inc_aq);
 
     result = Triple_scaling(bc, U, int_result);
@@ -332,15 +328,15 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
     t2_result = Triple_scaling(bc, T, inc_aq);
 
     // c = 1
-    share *c1 = bc->PutEQGate(one_share, s_target_c);
+    share *c1 = bc->PutEQGate(one_share, this->condition);
 
     // sum
-    share *c1_a_eq = bc->PutEQGate(Aq[0], s_target_a);
-    share *c1_v_eq = bc->PutEQGate(Vq[0], s_target_v);
+    share *c1_a_eq = bc->PutEQGate(Aq[0], this->attribute);
+    share *c1_v_eq = bc->PutEQGate(Vq[0], this->value);
     share *c1_sum = bc->PutMULGate(c1_a_eq, c1_v_eq);
     for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
-        c1_a_eq = bc->PutEQGate(Aq[i], s_target_a);
-        c1_v_eq = bc->PutEQGate(Vq[i], s_target_v);
+        c1_a_eq = bc->PutEQGate(Aq[i], this->attribute);
+        c1_v_eq = bc->PutEQGate(Vq[i], this->value);
         share *c1_sum_int = bc->PutMULGate(c1_a_eq, c1_v_eq);
         c1_sum = bc->PutADDGate(c1_sum, c1_sum_int);
     }
@@ -348,16 +344,16 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
 
     // c = 2
     share *two_share = bc->PutINGate((uint32_t) 2, 3, CLIENT);
-    share *c2 = bc->PutEQGate(two_share, s_target_c);
+    share *c2 = bc->PutEQGate(two_share, this->condition);
 
     // sum
-    share *c2_a_eq = bc->PutEQGate(Aq[0], s_target_a);
-    share *c2_v_eq = bc->PutEQGate(Vq[0], s_target_v);
+    share *c2_a_eq = bc->PutEQGate(Aq[0], this->attribute);
+    share *c2_v_eq = bc->PutEQGate(Vq[0], this->value);
     share *c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
     share *c2_sum = bc->PutMULGate(c2_a_eq, c2_v_neq);
     for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
-        c2_a_eq = bc->PutEQGate(Aq[i], s_target_a);
-        c2_v_eq = bc->PutEQGate(Vq[i], s_target_v);
+        c2_a_eq = bc->PutEQGate(Aq[i], this->attribute);
+        c2_v_eq = bc->PutEQGate(Vq[i], this->value);
         c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
         share *c2_sum_int = bc->PutMULGate(c2_a_eq, c2_v_eq);
         c2_sum = bc->PutADDGate(c2_sum, c2_sum_int);
@@ -367,15 +363,15 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
 
     // c = 3
     share *three_share = bc->PutINGate((uint32_t) 3, 3, CLIENT);
-    share *c3 = bc->PutEQGate(three_share, s_target_c);
+    share *c3 = bc->PutEQGate(three_share, this->condition);
 
     // sum
-    share *c3_a_eq = bc->PutEQGate(Aq[0], s_target_a);
-    share *c3_v_eq = bc->PutGTGate(s_target_v, Vq[0]);
+    share *c3_a_eq = bc->PutEQGate(Aq[0], this->attribute);
+    share *c3_v_eq = bc->PutGTGate(this->value, Vq[0]);
     share *c3_sum = bc->PutMULGate(c3_a_eq, c3_v_eq);
     for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
-        c3_a_eq = bc->PutEQGate(Aq[i], s_target_a);
-        c3_v_eq = bc->PutGTGate(s_target_v, Vq[0]);
+        c3_a_eq = bc->PutEQGate(Aq[i], this->attribute);
+        c3_v_eq = bc->PutGTGate(this->value, Vq[0]);
         share *c3_sum_int = bc->PutMULGate(c3_a_eq, c3_v_eq);
         c3_sum = bc->PutADDGate(c3_sum, c3_sum_int);
     }
@@ -384,14 +380,14 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
     
     // c = 4
     share *four_share = bc->PutINGate((uint32_t) 4, 3, CLIENT);
-    share *c4 = bc->PutEQGate(four_share, s_target_c);
+    share *c4 = bc->PutEQGate(four_share, this->condition);
     
-    share *c4_a_eq = bc->PutEQGate(Aq[0], s_target_a);
-    share *c4_v_eq = bc->PutGTGate(Vq[0], s_target_v);
+    share *c4_a_eq = bc->PutEQGate(Aq[0], this->attribute);
+    share *c4_v_eq = bc->PutGTGate(Vq[0], this->value);
     share *c4_sum = bc->PutMULGate(c4_a_eq, c4_v_eq);
     for(int i=1;i<(sizeof(*Aq) / sizeof(Aq[0]));i++) {
-        c4_a_eq = bc->PutEQGate(Aq[i], s_target_a);
-        c4_v_eq = bc->PutGTGate(Vq[0], s_target_v);
+        c4_a_eq = bc->PutEQGate(Aq[i], this->attribute);
+        c4_v_eq = bc->PutGTGate(Vq[0], this->value);
         share *c4_sum_int = bc->PutMULGate(c4_a_eq, c4_v_eq);
         c4_sum = bc->PutADDGate(c4_sum, c4_sum_int);
     }
@@ -493,7 +489,7 @@ Triple Operation::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Que
 
 int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
 		uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg,
-		e_sharing sharing) {
+		e_sharing sharing, int pi) {
 
 	ABYParty* party = new ABYParty(role, address, port, seclvl, bitlen, nthreads,
 			mt_alg);
@@ -508,21 +504,28 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
     // Encrypted 0 and 1
     share* one = circ->PutINGate((uint32_t) 1, 1, CLIENT);
     share* zero = circ->PutINGate((uint32_t) 0, 1, CLIENT);
+
+    share* twelve = circ->PutINGate((uint32_t) 12, 4, CLIENT);
+    share* two = circ->PutINGate((uint32_t) 2, 4, CLIENT);
+    share* three = circ->PutINGate((uint32_t) 3, 4, CLIENT);
+    share* four = circ->PutINGate((uint32_t) 4, 4, CLIENT);
+    share* five = circ->PutINGate((uint32_t) 5, 4, CLIENT);
+    share* six = circ->PutINGate((uint32_t) 6, 4, CLIENT);
     
     // Policies
     // This is figure 2 from the paper.
     Node *policy = new Operation(
         NOT, 
         new Target(
-            1, 12, 1, 
+            one, twelve, one, 
             new Operation(
                 SMIN, 
                 new Target(
-                    3, 4, 4,
+                    three, four, four,
                     new Operation(
                         WMAX,
                         new Target(
-                            1, 6, 2,
+                            one, six, two,
                             new Leaf(one, 1)
                         ),
                         new Leaf(zero, 0)
@@ -531,27 +534,16 @@ int32_t perform_target_evaluation(e_role role, const std::string& address, uint1
                 new Operation(
                     PO,
                     new Target(
-                        1, 5, 3,
+                        one, five, three,
                         new Leaf(one, 1)
                     ),
                     new Target(
-                        6, 12, 1,
+                        six, twelve, one,
                         new Leaf(one, 1)
                     )
                 )
             )
         )
-    );
-
-
-    // Test policy
-    Node *policy2 = new Operation(
-        PO,
-        new Target(
-            1, 12, 2,
-            new Leaf(one, 1)
-        ),
-        new Leaf(zero, 0)
     );
 
     std::cout << policy->print() << std::endl;

@@ -79,15 +79,11 @@ public:
 class Target : public Node
 {
 public: 
-    uint32_t attribute;
-    uint32_t value;
-    uint32_t condition;
+    share *attribute;
+    share *value;
+    share *condition;
 
-    Target(uint32_t a, uint32_t v, uint32_t c, Node *c1, Node *c2)
-        : Node(c1, c2), attribute(a), value(v), condition(c)
-    {
-    }
-    Target(uint32_t a, uint32_t v, uint32_t c, Node *c1)
+    Target(share *a, share *v, share *c, Node *c1)
         : Node(c1, NULL), attribute(a), value(v), condition(c)
     {
     }
@@ -159,7 +155,6 @@ public:
 
     Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
 
-
     std::string print()
     {
         std::string output = "";
@@ -208,6 +203,6 @@ public:
 
 int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
 		uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg,
-		e_sharing sharing);
+		e_sharing sharing, int pi);
 
 #endif /* __POLICY_H_ */

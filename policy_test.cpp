@@ -8,9 +8,10 @@
 
 int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 		uint32_t* bitlen, uint32_t* nvals, uint32_t* secparam, std::string* address,
-		uint16_t* port, int32_t* test_op) {
+		uint16_t* port, int32_t* test_op, int* pi) {
 
 	uint32_t int_role = 0, int_port = 0;
+    uint16_t policy_index = 1;
 	bool useffc = false;
 
 	parsing_ctx options[] =
@@ -25,7 +26,7 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 					(void*) &int_port, T_NUM, "p", "Port, default: 7766", false,
 					false }, { (void*) test_op, T_NUM, "t",
 					"Single test (leave out for all operations), default: off",
-					false, false } };
+					false, false }, { (void*) &policy_index, T_NUM, "pi", "Index of test policy that is executed", false, false }};
 
 	if (!parse_options(argcp, argvp, options,
 			sizeof(options) / sizeof(parsing_ctx))) {
@@ -34,8 +35,10 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 		exit(0);
 	}
 
+    std::cout << policy_index;
 	assert(int_role < 2);
 	*role = (e_role) int_role;
+    *pi = (int) policy_index;
 
 	if (int_port != 0) {
 		assert(int_port < 1 << (sizeof(uint16_t) * 8));
@@ -52,17 +55,20 @@ int main(int argc, char** argv) {
 	e_role role;
 	uint32_t bitlen = 32, nvals = 31, secparam = 128, nthreads = 1;
 	uint16_t port = 7766;
+    int pi = 0;
 	std::string address = "127.0.0.1";
 	int32_t test_op = -1;
 	e_mt_gen_alg mt_alg = MT_OT;
 
 	read_test_options(&argc, &argv, &role, &bitlen, &nvals, &secparam, &address,
-			&port, &test_op);
+			&port, &test_op, &pi);
 
 	seclvl seclvl = get_sec_lvl(secparam);
 
+    std::cout << pi << std::endl;
+
 	perform_target_evaluation(role, address, port, seclvl, 1, 32,
-			nthreads, mt_alg, S_BOOL);
+			nthreads, mt_alg, S_BOOL, pi);
 
 	return 0;
 }

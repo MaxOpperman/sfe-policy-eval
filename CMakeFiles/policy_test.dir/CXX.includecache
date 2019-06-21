@@ -145,8 +145,6 @@ math.h
 -
 cassert
 -
-policy.h
-/home/osboxes/policy/common/policy.h
 
 /usr/include/x86_64-linux-gnu/gmp.h
 iosfwd

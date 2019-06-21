@@ -8,12 +8,13 @@
 #include "../ABY/src/abycore/aby/abyparty.h"
 #include <math.h>
 #include <cassert>
-#include "policy.h"
+
+typedef std::vector<share *> CipherSet;
 
 struct Pair
 {
-    uint32_t attribute;
-    uint32_t value;
+    share *attribute;
+    share *value;
 };
 
 typedef std::vector<Pair> Query;
@@ -55,7 +56,11 @@ public:
     virtual int type()
     {
         return 0;
-    }
+    }                                
+
+    Query query_creation(BooleanCircuit *bc, uint32_t bitlen);
+    CipherSet query_attributes(Query& query);
+    CipherSet query_values(Query& query);
 
     Triple Triple_addition(BooleanCircuit *bc, Triple t1, Triple t2);
     Triple Triple_subtraction(BooleanCircuit *bc, Triple t1, Triple t2);
@@ -72,7 +77,7 @@ public:
     Triple Do(BooleanCircuit *bc, Triple t1, Triple t2);
     Triple fa(BooleanCircuit *bc, Triple t1, Triple t2);
 
-    share* PutINCGate(BooleanCircuit *bc, share *s_a, share *s_bs[], int size);
+    share* PutINCGate(BooleanCircuit *bc, share *s_a, CipherSet s_bs);
 
 };
 

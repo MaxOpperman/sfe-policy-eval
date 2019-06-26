@@ -45,19 +45,6 @@ public:
         return t;
     }
 
-    virtual std::string print()
-    {
-        std::string s = "test";
-
-        return s;
-    }
-
-
-    virtual int type()
-    {
-        return 0;
-    }                                
-
     Query query_creation(BooleanCircuit *bc, uint32_t bitlen);
     CipherSet query_attributes(Query& query);
     CipherSet query_values(Query& query);
@@ -96,51 +83,19 @@ public:
     Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) ;
     Triple target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
 
-    std::string print()
-    {
-        std::string output = "";
-        if(this->child1->type() == 1) {
-            output = output + "(t, " + this->child1->print() + ")";
-        }
-        else {
-            output = output + "t, " + this->child1->print();
-        }
-        if(this->child2 != NULL) {
-            output = output + this->child2->print();
-        }
-        return output;
-    }
-
-    int type()
-    {
-        return 2;
-    }
-
 };
 
 class Leaf: public Node
 {
 public:
     share* value;
-    int clear_value;
 
-    Leaf(share* val, int cval)
-        : Node(NULL, NULL), value(val), clear_value(cval)
+    Leaf(share* val)
+        : Node(NULL, NULL), value(val)
     {
     }
 
     Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
-
-    std::string print()
-    {
-        std::string output = "[" + std::to_string(clear_value) + "]";
-        return output;
-    }
-
-    int type()
-    {
-        return 1;
-    }
 
 };
 
@@ -160,54 +115,6 @@ public:
 
     Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
 
-    std::string print()
-    {
-        std::string output = "";
-        switch(this->rule) {
-            case NOT:
-                output = output + "not(";
-                break;
-            case WEA:
-                output = output + "wea(";
-                break;
-            case SMAX:
-                output = output + "smax(";
-                break;
-            case SMIN:
-                output = output + "smin(";
-                break;
-            case WMAX:
-                output = output + "wmax(";
-                break;
-            case WMIN:
-                output = output + "wmin(";
-                break;
-            case PO:
-                output = output + "po(";
-                break;
-            case DO:
-                output = output + "do(";
-                break;
-            default:
-                output = output + "fa(";
-        }
-        output = output + this->child1->print();
-        if(this->child2 != NULL) {
-            output = output + "," + this->child2->print();
-        }
-        output = output + ")";
-        return output;
-    }
-
-    int type()
-    {
-        return 3;
-    }
-
 };
-
-int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-		uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg,
-		e_sharing sharing, int pi);
 
 #endif /* __POLICY_H_ */

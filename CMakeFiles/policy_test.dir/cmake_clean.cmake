@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/policy_test.dir/policy_test.cpp.o"
   "CMakeFiles/policy_test.dir/common/policy.cpp.o"
+  "CMakeFiles/policy_test.dir/common/parser.cpp.o"
   "policy_test.pdb"
   "policy_test"
 )

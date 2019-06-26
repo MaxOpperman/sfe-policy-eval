@@ -7,5 +7,5 @@ elseif (NOT ABY_FOUND AND NOT TARGET ABY::aby)
 	add_subdirectory(ABY)
 endif()
 
-add_executable(policy_test policy_test.cpp common/policy.cpp)
+add_executable(policy_test policy_test.cpp common/policy.cpp common/parser.cpp)
 target_link_libraries(policy_test ABY::aby)

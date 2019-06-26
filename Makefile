@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/osboxes/policy
+CMAKE_SOURCE_DIR = /home/osboxes/policy-eval
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/osboxes/policy
+CMAKE_BINARY_DIR = /home/osboxes/policy-eval
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -126,9 +126,9 @@ install/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/osboxes/policy/CMakeFiles /home/osboxes/policy/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/osboxes/policy-eval/CMakeFiles /home/osboxes/policy-eval/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/osboxes/policy/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/osboxes/policy-eval/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -221,6 +221,33 @@ aby/fast:
 	$(MAKE) -f ABY/src/abycore/CMakeFiles/aby.dir/build.make ABY/src/abycore/CMakeFiles/aby.dir/build
 .PHONY : aby/fast
 
+common/parser.o: common/parser.cpp.o
+
+.PHONY : common/parser.o
+
+# target to build an object file
+common/parser.cpp.o:
+	$(MAKE) -f CMakeFiles/policy_test.dir/build.make CMakeFiles/policy_test.dir/common/parser.cpp.o
+.PHONY : common/parser.cpp.o
+
+common/parser.i: common/parser.cpp.i
+
+.PHONY : common/parser.i
+
+# target to preprocess a source file
+common/parser.cpp.i:
+	$(MAKE) -f CMakeFiles/policy_test.dir/build.make CMakeFiles/policy_test.dir/common/parser.cpp.i
+.PHONY : common/parser.cpp.i
+
+common/parser.s: common/parser.cpp.s
+
+.PHONY : common/parser.s
+
+# target to generate assembly for a file
+common/parser.cpp.s:
+	$(MAKE) -f CMakeFiles/policy_test.dir/build.make CMakeFiles/policy_test.dir/common/parser.cpp.s
+.PHONY : common/parser.cpp.s
+
 common/policy.o: common/policy.cpp.o
 
 .PHONY : common/policy.o
@@ -292,6 +319,9 @@ help:
 	@echo "... encrypto_utils"
 	@echo "... otextension"
 	@echo "... aby"
+	@echo "... common/parser.o"
+	@echo "... common/parser.i"
+	@echo "... common/parser.s"
 	@echo "... common/policy.o"
 	@echo "... common/policy.i"
 	@echo "... common/policy.s"

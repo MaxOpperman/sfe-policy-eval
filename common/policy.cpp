@@ -88,13 +88,13 @@ Triple Node::wmin(BooleanCircuit *bc, Triple p1, Triple p2)
     s_op_temp1 = bc->PutANDGate(p1.f, s_inv_1);
     s_op_temp2 = bc->PutANDGate(p2.f, s_inv_2);
 
-    result.t = bc->PutORGate(s_op_temp1, s_op_temp2);
+    result.f = bc->PutORGate(s_op_temp1, s_op_temp2);
 
     // pi_u(p1 wmin p2) = pi_NA(p1) OR p_NA(p2)
     result.u = bc->PutORGate(p1.u, p2.u);
 
     // pi_1(p1 wmin p2) = pi_1(p1) AND pi_1(p2)   
-    result.f = bc->PutANDGate(p1.t, p2.t);
+    result.t = bc->PutANDGate(p1.t, p2.t);
 
     return result;
 }
@@ -122,7 +122,7 @@ Triple Node::wea(BooleanCircuit *bc, Triple p1)
     Triple result;
 
     // pi_0(p) = pi_1(p)
-    result.f = bc->PutORGate(p1.t, p1.u);
+    result.f = bc->PutORGate(p1.f, p1.u);
 
     // pi_u(p) = pi_NA(p)
     result.u = p1.u;
@@ -210,22 +210,22 @@ Triple Node::fa(BooleanCircuit *bc, Triple p1, Triple p2)
  */
 
 Triple Node::Triple_addition(BooleanCircuit *bc, Triple t1, Triple t2)
-    {
-        Triple result;
-        result.t = bc->PutADDGate(t1.t, t2.t);
-        result.f =   bc->PutADDGate(t1.f, t2.f);
-        result.u =     bc->PutADDGate(t1.u, t2.u);     
+{
+    Triple result;
+    result.t = bc->PutADDGate(t1.t, t2.t);
+    result.f = bc->PutADDGate(t1.f, t2.f);
+    result.u = bc->PutADDGate(t1.u, t2.u);     
 
-        return result;
-    }
+    return result;
+}
 
 
 Triple Node::Triple_subtraction(BooleanCircuit *bc, Triple t1, Triple t2)
 {
     Triple result;
     result.t = bc->PutSUBGate(t1.t, t2.t);
-    result.f =   bc->PutSUBGate(t1.f, t2.f);
-    result.u =     bc->PutSUBGate(t1.u, t2.u);     
+    result.f = bc->PutSUBGate(t1.f, t2.f);
+    result.u = bc->PutSUBGate(t1.u, t2.u);     
 
     return result;
 }
@@ -275,16 +275,17 @@ Triple Target::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query 
     Triple pt = this->child1->evaluate(bc, role, bitlen, q);
     result = this->Triple_scaling(bc, pt, pi_t);
     
-    F.t = bc->PutINGate((uint32_t) 0, 1, CLIENT);
-    F.f =  bc->PutINGate((uint32_t) 1, 1, CLIENT);
-    F.u = bc->PutINGate((uint32_t) 0, 1, CLIENT);
-
-    t2 = this->Triple_scaling(bc, F, pi_f);
-    result =  this->Triple_addition(bc, result, t2);
-
     U.t = bc->PutINGate((uint32_t) 0, 1, CLIENT);
     U.f =  bc->PutINGate((uint32_t) 0, 1, CLIENT);
     U.u = bc->PutINGate((uint32_t) 1, 1, CLIENT);
+
+    //F.t = bc->PutINGate((uint32_t) 0, 1, CLIENT);
+    //F.f =  bc->PutINGate((uint32_t) 1, 1, CLIENT);
+    //F.u = bc->PutINGate((uint32_t) 0, 1, CLIENT);
+
+    t2 = this->Triple_scaling(bc, U, pi_f);
+    result =  this->Triple_addition(bc, result, t2);
+
 
     t3 = this->Triple_scaling(bc, U, pi_u);
     result = this->Triple_addition(bc, result, t3);
@@ -314,12 +315,12 @@ CipherSet Node::query_attributes(Query& query)
 
 CipherSet Node::query_values(Query& query)
 {
-    CipherSet attributes;
+    CipherSet values;
     for(int i = 0; i < query.size(); ++i) {
-        attributes.push_back(query[i].attribute);
+        values.push_back(query[i].value);
     }
     
-    return attributes;
+    return values;
 }
 
 // Perform target evaluation
@@ -379,7 +380,7 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
         c2_a_eq = bc->PutEQGate(Aq[i], this->attribute);
         c2_v_eq = bc->PutEQGate(Vq[i], this->value);
         c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
-        share *c2_sum_int = bc->PutMULGate(c2_a_eq, c2_v_eq);
+        share *c2_sum_int = bc->PutMULGate(c2_a_eq, c2_v_neq);
         c2_sum = bc->PutADDGate(c2_sum, c2_sum_int);
     }
     c2 = bc->PutMULGate(c2, c2_sum);
@@ -395,7 +396,7 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
     share *c3_sum = bc->PutMULGate(c3_a_eq, c3_v_eq);
     for(int i = 1 ; i < Aq.size() ; i++ ) {
         c3_a_eq = bc->PutEQGate(Aq[i], this->attribute);
-        c3_v_eq = bc->PutGTGate(this->value, Vq[0]);
+        c3_v_eq = bc->PutGTGate(this->value, Vq[i]);
         share *c3_sum_int = bc->PutMULGate(c3_a_eq, c3_v_eq);
         c3_sum = bc->PutADDGate(c3_sum, c3_sum_int);
     }
@@ -411,7 +412,7 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
     share *c4_sum = bc->PutMULGate(c4_a_eq, c4_v_eq);
     for(int i = 1 ; i < Aq.size() ; i++ ) {
         c4_a_eq = bc->PutEQGate(Aq[i], this->attribute);
-        c4_v_eq = bc->PutGTGate(Vq[0], this->value);
+        c4_v_eq = bc->PutGTGate(Vq[i], this->value);
         share *c4_sum_int = bc->PutMULGate(c4_a_eq, c4_v_eq);
         c4_sum = bc->PutADDGate(c4_sum, c4_sum_int);
     }
@@ -456,6 +457,7 @@ Triple Leaf::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q)
     F.u = bc->PutINGate((uint32_t) 0, 1, CLIENT);
     share* zero_share = bc->PutINGate((uint32_t) 0, 1, CLIENT);
     share* eq_zero = bc->PutEQGate(this->value, zero_share);
+
     right = Triple_scaling(bc, F, eq_zero);
 
     result = Triple_addition(bc, left, right);
@@ -509,86 +511,4 @@ Triple Operation::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Que
     }
 
     return result;
-}
-
-int32_t perform_target_evaluation(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-		uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg,
-		e_sharing sharing, int pi) {
-
-	ABYParty* party = new ABYParty(role, address, port, seclvl, bitlen, nthreads,
-			mt_alg);
-
-	std::vector<Sharing*>& sharings = party->GetSharings();
-	Circuit* circ = sharings[sharing]->GetCircuitBuildRoutine();
-
-    // Query
-
-    // Encrypted 0 and 1
-    share* one = circ->PutINGate((uint32_t) 1, 1, CLIENT);
-    share* zero = circ->PutINGate((uint32_t) 0, 1, CLIENT);
-
-    share* twelve = circ->PutINGate((uint32_t) 12, 4, CLIENT);
-    share* two = circ->PutINGate((uint32_t) 2, 4, CLIENT);
-    share* three = circ->PutINGate((uint32_t) 3, 4, CLIENT);
-    share* four = circ->PutINGate((uint32_t) 4, 4, CLIENT);
-    share* five = circ->PutINGate((uint32_t) 5, 4, CLIENT);
-    share* six = circ->PutINGate((uint32_t) 6, 4, CLIENT);
-    
-    // Policies
-    // This is figure 2 from the paper.
-    Node *policy = new Operation(
-        NOT, 
-        new Target(
-            one, twelve, one, 
-            new Operation(
-                SMIN, 
-                new Target(
-                    three, four, four,
-                    new Operation(
-                        WMAX,
-                        new Target(
-                            one, six, two,
-                            new Leaf(one, 1)
-                        ),
-                        new Leaf(zero, 0)
-                    )
-                ),
-                new Operation(
-                    PO,
-                    new Target(
-                        one, five, three,
-                        new Leaf(one, 1)
-                    ),
-                    new Target(
-                        six, twelve, one,
-                        new Leaf(one, 1)
-                    )
-                )
-            )
-        )
-    );
-
-    Query query = policy->query_creation((BooleanCircuit *) circ, bitlen);
-
-    std::cout << policy->print() << std::endl;
-    Triple t = policy->evaluate((BooleanCircuit *)circ, role, bitlen, query);
-    
-    share *s_t = circ->PutOUTGate(t.t, ALL);
-    share *s_u = circ->PutOUTGate(t.u, ALL);
-    share *s_f = circ->PutOUTGate(t.f, ALL);
-
-    std::cout << "Circuit succesfully initialised." << std::endl;
-
-    party->ExecCircuit();
-
-    std::cout << "Circuit executed, collecting results..." << std::endl;
-
-    uint32_t t_output = s_t->get_clear_value<uint32_t>();
-    uint32_t u_output = s_u->get_clear_value<uint32_t>();
-    uint32_t f_output = s_f->get_clear_value<uint32_t>();
-
-    std::cout << "Output: ([" << t_output << "], [" << f_output << "], [" << u_output << "])" << std::endl;
-
-	delete party;
-	return 0;
 }

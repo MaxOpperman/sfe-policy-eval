@@ -124,8 +124,11 @@ Triple Node::wea(BooleanCircuit *bc, Triple p1)
     // pi_0(p) = pi_1(p)
     result.f = bc->PutORGate(p1.f, p1.u);
 
+    uint32_t zero = 0;
+    share *zero_share = bc->PutCONSGate(zero, (uint32_t) 1);
+
     // pi_u(p) = pi_NA(p)
-    result.u = p1.u;
+    result.u = zero_share;
 
     //pi_1(p) = pi_0(p)
     result.t = p1.t;

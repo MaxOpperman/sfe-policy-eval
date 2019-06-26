@@ -105,12 +105,16 @@ int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl 
                 uint32_t f_output = s_f->get_clear_value<uint32_t>();
                 uint32_t u_output = s_u->get_clear_value<uint32_t>();
 
-                output << index <<"===" <<"[" << t_output << ", " << f_output << ", " << u_output << "]===[" << difference << "]===[0]" << std::endl;
+                if(role == SERVER) {
+                    output << index <<"===" <<"[" << t_output << ", " << f_output << ", " << u_output << "]===[" << difference << "]===[0]" << std::endl;
+                }
 
                 delete party;
             }
             else {
-                output << "# [0, 0, 0]===[0, 0, 0]===[0.000000]===[0]" << std::endl;
+                if(role == SERVER) {
+                    output << "# [0, 0, 0]===[0, 0, 0]===[0.000000]===[0]" << std::endl;
+                }
             }
         }
     }

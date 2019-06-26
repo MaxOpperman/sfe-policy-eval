@@ -40,7 +40,7 @@ StringSet split_parsing(const String& line)
 
 Node* leaf_parsing(BooleanCircuit *bc, uint32_t bitlen, const String& line) {
     int val = std::stoi(line.substr(1,1));
-    share *value = bc->PutINGate((uint32_t) val, bitlen, CLIENT); 
+    share *value = bc->PutINGate((uint32_t) val, bitlen, SERVER); 
     Node *leaf = new Leaf(value);
     return leaf;
 }
@@ -54,9 +54,9 @@ Node* target_parsing(BooleanCircuit *bc, uint32_t bitlen, String line) {
     uint32_t a = std::stoi(parts[0]);
     uint32_t v = std::stoi(parts[1]);
     uint32_t c = std::stoi(parts[2]);
-    share *attr = bc->PutINGate(a, bitlen, CLIENT);
-    share *value = bc->PutINGate(v, bitlen, CLIENT);
-    share *condition = bc->PutINGate(c, bitlen, CLIENT);
+    share *attr = bc->PutINGate(a, bitlen, SERVER);
+    share *value = bc->PutINGate(v, bitlen, SERVER);
+    share *condition = bc->PutINGate(c, bitlen, SERVER);
 
     String line1 = parts[3].substr(1, parts[3].length() - 2);
     Node *child1 = policy_parsing(bc, bitlen, line1);

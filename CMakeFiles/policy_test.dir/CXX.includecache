@@ -122,17 +122,13 @@ cstdint
 vector
 -
 
+/home/osboxes/policy-eval/common/parser.cpp
+parser.h
+/home/osboxes/policy-eval/common/parser.h
+
 /home/osboxes/policy-eval/common/parser.h
 policy.h
 /home/osboxes/policy-eval/common/policy.h
-
-/home/osboxes/policy-eval/common/policy.cpp
-policy.h
-/home/osboxes/policy-eval/common/policy.h
-../ABY/src/abycore/circuit/booleancircuits.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/booleancircuits.h
-../ABY/src/abycore/sharing/sharing.h
-/home/osboxes/policy-eval/ABY/src/abycore/sharing/sharing.h
 
 /home/osboxes/policy-eval/common/policy.h
 ../ABY/src/abycore/circuit/booleancircuits.h

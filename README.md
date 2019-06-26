@@ -1,13 +1,10 @@
 # Secure function evaluation for Policy Evaluation
 ## Files
 - policy_test.cpp - entry point of the application reads CLI arguments.
-- common/policy.h - definition of data structures (query, triple, tree nodes)
+- common/policy.h - definition of data structures (pair, query, triple, tree nodes)
 - common/policy.cpp - implementation of target and policy evaluation, triple arithmetic and combination rules.
+- common/parser.h - contains parser data structures (Strings and StringSets).
+- common/parser.cpp - parses string represetnation of policiesi to actual datastructures.
 
 ## TODO
-- Add composite target evaluation (if required)
-- Test policy evaluation thoroughly
-- Make tree randomizer
-
-## Possible errors in the paper
-- Line 19 of Algorithm 1, U should be F?
+- Parse computation and communication time

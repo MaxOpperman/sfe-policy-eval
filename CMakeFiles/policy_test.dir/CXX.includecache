@@ -122,10 +122,6 @@ cstdint
 vector
 -
 
-/home/osboxes/policy-eval/common/parser.cpp
-parser.h
-/home/osboxes/policy-eval/common/parser.h
-
 /home/osboxes/policy-eval/common/parser.h
 policy.h
 /home/osboxes/policy-eval/common/policy.h

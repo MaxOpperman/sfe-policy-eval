@@ -70,7 +70,6 @@ StringSet split_line(const String& line)
 int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl seclvl,	uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing) {
 
     std::ifstream input("data/input.txt");
-    std::ofstream output("data/output.txt");
     int number = 0;
 
     String line;
@@ -106,21 +105,20 @@ int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl 
                 uint32_t u_output = s_u->get_clear_value<uint32_t>();
 
                 if(role == SERVER) {
-                    output << index <<"===" <<"[" << t_output << ", " << f_output << ", " << u_output << "]===[" << difference << "]===[0]" << std::endl;
+                    std::cout << index <<"===" <<"[" << t_output << ", " << f_output << ", " << u_output << "]===" << std::endl;
                 }
 
                 delete party;
             }
             else {
                 if(role == SERVER) {
-                    output << "# [0, 0, 0]===[0, 0, 0]===[0.000000]===[0]" << std::endl;
+                    std::cout << "# [0, 0, 0]===[0, 0, 0]===[0.000000]===[0]" << std::endl;
                 }
             }
         }
     }
 
     input.close();
-    output.close();
 
 	return 0;
 }
@@ -128,7 +126,7 @@ int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl 
 int main(int argc, char** argv) {
 
 	e_role role;
-	uint32_t bitlen = 32, nvals = 31, secparam = 128, nthreads = 1;
+	uint32_t bitlen = 32, nvals = 31, secparam = 128, nthreads = 4;
 	uint16_t port = 7766;
 	std::string address = "127.0.0.1";
 	int32_t test_op = -1;

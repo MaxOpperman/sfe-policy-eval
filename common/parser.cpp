@@ -163,7 +163,6 @@ Node* policy_parsing(BooleanCircuit *bc, uint32_t bitlen, const String& line) {
 }
 
 Node* perform_policy_parsing(BooleanCircuit *bc, uint32_t bitlen, const String& line){
-    std::cout << line << std::endl;
     String substring = line.substr(1, line.length() - 2);
     Node* policy = policy_parsing(bc, bitlen, substring);
     return policy;

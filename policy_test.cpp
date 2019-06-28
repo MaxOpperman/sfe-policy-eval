@@ -100,11 +100,11 @@ int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl 
                 party->ExecCircuit();
                 float difference = float( clock() - begin_time ) / CLOCKS_PER_SEC;
 
-                uint32_t t_output = s_t->get_clear_value<uint32_t>();
-                uint32_t f_output = s_f->get_clear_value<uint32_t>();
-                uint32_t u_output = s_u->get_clear_value<uint32_t>();
-
                 if(role == SERVER) {
+                    uint32_t t_output = s_t->get_clear_value<uint32_t>();
+                    uint32_t f_output = s_f->get_clear_value<uint32_t>();
+                    uint32_t u_output = s_u->get_clear_value<uint32_t>();
+
                     std::cout << index <<"===" <<"[" << t_output << ", " << f_output << ", " << u_output << "]===" << std::endl;
                 }
 
@@ -126,7 +126,7 @@ int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl 
 int main(int argc, char** argv) {
 
 	e_role role;
-	uint32_t bitlen = 32, nvals = 31, secparam = 128, nthreads = 4;
+	uint32_t bitlen = 32, nvals = 31, secparam = 128, nthreads = 1;
 	uint16_t port = 7766;
 	std::string address = "127.0.0.1";
 	int32_t test_op = -1;

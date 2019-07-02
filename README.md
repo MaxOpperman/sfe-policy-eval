@@ -6,5 +6,18 @@
 - common/parser.h - contains parser data structures (Strings and StringSets).
 - common/parser.cpp - parses string represetnation of policiesi to actual datastructures.
 
-## TODO
-- Parse computation and communication time
+## How to run
+In one terminal do:
+```
+./policy_test -r 1
+```
+In another terminal do
+```
+./policy_test -r 0
+```
+
+If the results need to be formatted like in data/output.txt do:
+```
+./policy_test -r 0 | ./to_output.py
+```
+The results are automatically written to data/online-output.txt and data/total-output.txt.

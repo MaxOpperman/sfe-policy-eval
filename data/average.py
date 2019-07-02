@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+graph = ""
 with open("output-online.txt") as fh:
     outputs = fh.readlines()
     averages = []
@@ -10,7 +11,7 @@ with open("output-online.txt") as fh:
         targets = int(data[0][1:])
         operations = int(data[1])
         smoothness = int(data[2][:-1])
-        if((targets == 1 and (operations == 1 or operations % 5 == 0)) or (targets % 5 == 0 and operations % 5 == 0)):
+        if(operations == targets):
             time = float(line[2][1:-1])
             bandwidth = int(line[3][1:-2])
             if smoothness < 10:
@@ -18,7 +19,9 @@ with open("output-online.txt") as fh:
             else:
                 average += bandwidth
                 average = round(average / 10, 0)
-                print("[%d, %d]: %d" % (targets, operations, average))
+                print("(%d, %f)" % (targets, average))
+                graph += "(%d, %d) " % (targets, average)
                 average = 0
 
+print(graph)
 

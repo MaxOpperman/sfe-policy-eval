@@ -3,7 +3,7 @@
 ## Installation
 First install the packages required by ABY:
 ```
-sudo apt-get install sudo apt-get install g++ make cmake libgmp-dev libssl-dev libboost-all-dev
+sudo apt-get install g++ make cmake libgmp-dev libssl-dev libboost-all-dev
 ```
 After which you can clone the repository:
 ```

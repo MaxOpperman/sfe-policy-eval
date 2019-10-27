@@ -6,19 +6,19 @@
 
 #IncludeRegexTransform: 
 
-/home/osboxes/policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
 string
 -
 ENCRYPTO_utils/constants.h
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/ABY_utils/convtypes.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/ABY_utils/convtypes.h
 inttypes.h
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/aby/abyparty.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/aby/abyparty.h
 ../ABY_utils/ABYconstants.h
-/home/osboxes/policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
 ENCRYPTO_utils/timer.h
 -
 memory
@@ -28,13 +28,13 @@ vector
 mutex
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/abycircuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/abycircuit.h
 math.h
 -
 ENCRYPTO_utils/typedefs.h
 -
 ../ABY_utils/ABYconstants.h
-/home/osboxes/policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
 string
 -
 vector
@@ -48,27 +48,27 @@ ENCRYPTO_utils/constants.h
 ENCRYPTO_utils/utils.h
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/arithmeticcircuits.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/arithmeticcircuits.h
 ENCRYPTO_utils/typedefs.h
 -
 abycircuit.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/abycircuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/abycircuit.h
 circuit.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/circuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/circuit.h
 share.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/share.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/share.h
 cstring
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/booleancircuits.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/booleancircuits.h
 share.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/share.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/share.h
 abycircuit.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/abycircuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/abycircuit.h
 circuit.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/circuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/circuit.h
 ../ABY_utils/convtypes.h
-/home/osboxes/policy-eval/ABY/src/abycore/ABY_utils/convtypes.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/ABY_utils/convtypes.h
 ENCRYPTO_utils/cbitvector.h
 -
 ENCRYPTO_utils/parse_options.h
@@ -84,9 +84,9 @@ map
 algorithm
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/circuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/circuit.h
 abycircuit.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/abycircuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/abycircuit.h
 functional
 -
 cassert
@@ -100,11 +100,11 @@ string
 vector
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/share.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/share.h
 circuit.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/circuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/circuit.h
 ../ABY_utils/ABYconstants.h
-/home/osboxes/policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
 cassert
 -
 cstdint
@@ -112,54 +112,38 @@ cstdint
 vector
 -
 
-/home/osboxes/policy-eval/ABY/src/abycore/sharing/sharing.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/sharing/sharing.h
 ENCRYPTO_utils/cbitvector.h
 -
 ../ABY_utils/ABYconstants.h
-/home/osboxes/policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/ABY_utils/ABYconstants.h
 cstdint
 -
 vector
 -
 
-/home/osboxes/policy-eval/common/parser.h
+/home/osboxes/sfe-policy-eval/common/policy.cpp
 policy.h
-/home/osboxes/policy-eval/common/policy.h
-
-/home/osboxes/policy-eval/common/policy.h
+/home/osboxes/sfe-policy-eval/common/policy.h
 ../ABY/src/abycore/circuit/booleancircuits.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/booleancircuits.h
-../ABY/src/abycore/circuit/arithmeticcircuits.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/arithmeticcircuits.h
-../ABY/src/abycore/circuit/circuit.h
-/home/osboxes/policy-eval/ABY/src/abycore/circuit/circuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/booleancircuits.h
 ../ABY/src/abycore/sharing/sharing.h
-/home/osboxes/policy-eval/ABY/src/abycore/sharing/sharing.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/sharing/sharing.h
+
+/home/osboxes/sfe-policy-eval/common/policy.h
+../ABY/src/abycore/circuit/booleancircuits.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/booleancircuits.h
+../ABY/src/abycore/circuit/arithmeticcircuits.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/arithmeticcircuits.h
+../ABY/src/abycore/circuit/circuit.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/circuit.h
+../ABY/src/abycore/sharing/sharing.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/sharing/sharing.h
 ../ABY/src/abycore/aby/abyparty.h
-/home/osboxes/policy-eval/ABY/src/abycore/aby/abyparty.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/aby/abyparty.h
 math.h
 -
 cassert
--
-
-/home/osboxes/policy-eval/policy_test.cpp
-ENCRYPTO_utils/crypto/crypto.h
--
-ENCRYPTO_utils/parse_options.h
--
-ABY/src/abycore/aby/abyparty.h
-/home/osboxes/policy-eval/ABY/src/abycore/aby/abyparty.h
-iostream
--
-fstream
--
-sstream
--
-common/policy.h
-/home/osboxes/policy-eval/common/policy.h
-common/parser.h
-/home/osboxes/policy-eval/common/parser.h
-chrono
 -
 
 /usr/include/x86_64-linux-gnu/gmp.h
@@ -184,14 +168,6 @@ ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/constants.h
 typedefs.h
 ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/typedefs.h
 cstdint
--
-
-ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/crypto/crypto.h
-openssl/evp.h
--
-../constants.h
-ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/constants.h
-mutex
 -
 
 ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/parse_options.h

@@ -1,8 +1,8 @@
-# Install script for directory: /home/osboxes/policy-eval
+# Install script for directory: /home/osboxes/sfe-policy-eval
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/osboxes/ABY")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/osboxes/policy-eval/ABY/cmake_install.cmake")
+  include("/home/osboxes/sfe-policy-eval/ABY/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/osboxes/policy-eval/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/osboxes/sfe-policy-eval/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

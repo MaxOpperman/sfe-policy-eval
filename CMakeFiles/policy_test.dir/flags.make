@@ -6,5 +6,5 @@ CXX_FLAGS = -O3 -DNDEBUG   -std=gnu++17
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/osboxes/policy-eval/ABY/src/abycore/.. -I/home/osboxes/policy-eval/ABY/extern/OTExtension -I/home/osboxes/policy-eval/ABY/extern/ENCRYPTO_utils/src -isystem /usr/include/x86_64-linux-gnu 
+CXX_INCLUDES = -I/home/osboxes/sfe-policy-eval/ABY/src/abycore/.. -I/home/osboxes/sfe-policy-eval/ABY/extern/OTExtension -I/home/osboxes/sfe-policy-eval/ABY/extern/ENCRYPTO_utils/src -isystem /usr/include/x86_64-linux-gnu 
 

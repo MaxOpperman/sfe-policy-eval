@@ -320,113 +320,49 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
     CipherSet Vq = this->query_values(q);
 
     Triple result;
-    uint32_t zero = 0;
-    uint32_t one = 1;
-    uint32_t two = 2;
-    uint32_t three = 3;
-    uint32_t four = 4;
 
-    // Term 1   ([0], [0], [1]) if 
-    Triple U; 
-    U.t = bc->PutCONSGate(zero, 1);
-    U.f = bc->PutCONSGate(zero, 1);
-    U.u = bc->PutCONSGate(one, 1);
+	uint32_t zero = 0;
+	share *matching = bc->PutCONSGate(zero, bitlen);
+	
+	for(int i = 0; i < q.size(); i++) {
+		share *attribute_match = bc->PutEQGate(this->attribute, q[i].attribute);
 
-    share *one_share = bc->PutCONSGate(one, 1);
-    share *inc_aq = PutINCGate(bc, this->attribute, Aq);
-    share *int_result = bc->PutSUBGate(one_share, inc_aq);
+		// Equal condition
+		share *p1 = bc->PutCONSGate((uint32_t) 1, bitlen);
+		share *value_equal = bc->PutEQGate(this->value, q[i].value);
+		share *value_match = bc->PutANDGate(p1, value_equal);
+		
+		// Not equal condition
+		share *p2 = bc->PutCONSGate((uint32_t) 2, bitlen);
+		share *value_not_equal = bc->PutINVGate(value_equal);
+		share *non_match_result = bc->PutANDGate(p2, value_not_equal);
+		value_match = bc->PutORGate(value_match, non_match_result);
 
-    result = Triple_scaling(bc, U, int_result);
+		// Greater than condition
+		share *p3 = bc->PutCONSGate((uint32_t) 3, bitlen);
+		share *value_greater_than = bc->PutGTGate(this->value, q[i].value);
+		share *greater_than_result = bc->PutANDGate(p3, value_greater_than);
+		value_match = bc->PutORGate(value_match, greater_than_result);
 
-    // Term 2   ([1], [0], [0]) if [a_1 = a] and [v_1 condition v]
-    Triple T, t2_result;
-    T.t = bc->PutCONSGate(one, 1);
-    T.f = bc->PutCONSGate(zero, 1);
-    T.u = bc->PutCONSGate(zero, 1);
+		// Lesser than condition
+		share *p4 = bc->PutCONSGate((uint32_t) 4, 3);
+		share *value_lesser_than = bc->PutINVGate(value_greater_than);
+		share *value_lesser_than_equal = bc->PutORGate(value_equal, value_lesser_than);
+		share *lesser_than_result = bc->PutANDGate(p4, value_lesser_than_equal);
+		value_match = bc->PutORGate(value_match, lesser_than_result);
 
-    t2_result = Triple_scaling(bc, T, inc_aq);
+		// Combine results
+		share *tmp = bc->PutANDGate(attribute_match, value_match);
+		matching = bc->PutORGate(matching, tmp);
+	}
 
-    // c = 1
-    share *c1 = bc->PutEQGate(one_share, this->condition);
+	share *non_matching = bc->PutINVGate(matching);
+	share *included = PutINCGate(bc, this->attribute, Aq);
 
-    // sum
-    share *c1_a_eq = bc->PutEQGate(Aq[0], this->attribute);
-    share *c1_v_eq = bc->PutEQGate(Vq[0], this->value);
-    share *c1_sum = bc->PutMULGate(c1_a_eq, c1_v_eq);
-    for(int i = 1 ; i<Aq.size() ; i++) {
-        c1_a_eq = bc->PutEQGate(Aq[i], this->attribute);
-        c1_v_eq = bc->PutEQGate(Vq[i], this->value);
-        share *c1_sum_int = bc->PutMULGate(c1_a_eq, c1_v_eq);
-        c1_sum = bc->PutADDGate(c1_sum, c1_sum_int);
-    }
-    share *t2_sum = bc->PutMULGate(c1, c1_sum);
 
-    // c = 2
-    share *two_share = bc->PutCONSGate(two, 3);
-    share *c2 = bc->PutEQGate(two_share, this->condition);
-
-    // sum
-    share *c2_a_eq = bc->PutEQGate(Aq[0], this->attribute);
-    share *c2_v_eq = bc->PutEQGate(Vq[0], this->value);
-    share *c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
-    share *c2_sum = bc->PutMULGate(c2_a_eq, c2_v_neq);
-    for(int i = 1 ; i < Aq.size() ; i++) {
-        c2_a_eq = bc->PutEQGate(Aq[i], this->attribute);
-        c2_v_eq = bc->PutEQGate(Vq[i], this->value);
-        c2_v_neq = bc->PutSUBGate(one_share, c2_v_eq);
-        share *c2_sum_int = bc->PutMULGate(c2_a_eq, c2_v_neq);
-        c2_sum = bc->PutADDGate(c2_sum, c2_sum_int);
-    }
-    c2 = bc->PutMULGate(c2, c2_sum);
-    t2_sum = bc->PutADDGate(t2_sum, c2);
-
-    // c = 3
-    share *three_share = bc->PutCONSGate(three, 3);
-    share *c3 = bc->PutEQGate(three_share, this->condition);
-
-    // sum
-    share *c3_a_eq = bc->PutEQGate(Aq[0], this->attribute);
-    share *c3_v_eq = bc->PutGTGate(this->value, Vq[0]);
-    share *c3_sum = bc->PutMULGate(c3_a_eq, c3_v_eq);
-    for(int i = 1 ; i < Aq.size() ; i++ ) {
-        c3_a_eq = bc->PutEQGate(Aq[i], this->attribute);
-        c3_v_eq = bc->PutGTGate(this->value, Vq[i]);
-        share *c3_sum_int = bc->PutMULGate(c3_a_eq, c3_v_eq);
-        c3_sum = bc->PutADDGate(c3_sum, c3_sum_int);
-    }
-    c3 = bc->PutMULGate(c3, c3_sum);
-    t2_sum = bc->PutADDGate(t2_sum, c3);
-    
-    // c = 4
-    share *four_share = bc->PutCONSGate(four, 3);
-    share *c4 = bc->PutEQGate(four_share, this->condition);
-    
-    share *c4_a_eq = bc->PutEQGate(Aq[0], this->attribute);
-    share *c4_v_eq = bc->PutGTGate(Vq[0], this->value);
-    share *c4_sum = bc->PutMULGate(c4_a_eq, c4_v_eq);
-    for(int i = 1 ; i < Aq.size() ; i++ ) {
-        c4_a_eq = bc->PutEQGate(Aq[i], this->attribute);
-        c4_v_eq = bc->PutGTGate(Vq[i], this->value);
-        share *c4_sum_int = bc->PutMULGate(c4_a_eq, c4_v_eq);
-        c4_sum = bc->PutADDGate(c4_sum, c4_sum_int);
-    }
-    c4 = bc->PutMULGate(c4, c4_sum);
-    t2_sum = bc->PutADDGate(t2_sum, c4);
-
-    t2_result = Triple_scaling(bc, t2_result, t2_sum);
-    result = Triple_addition(bc, result, t2_result);
-
-    // Term 3   ([0], [1], [0]) if [a_1 != a] and [v_1 != v]
-    Triple F, t3_result;
-    F.t = bc->PutINGate(zero, 1, CLIENT);
-    F.f = bc->PutINGate(one, 1, CLIENT);
-    F.u = bc->PutINGate(zero, 1, CLIENT);
-
-    share *not_eq_cmp = bc->PutSUBGate(one_share, t2_sum);
-    share *inc_comb = bc->PutMULGate(inc_aq, not_eq_cmp);
-    t3_result = Triple_scaling(bc, F, inc_comb);
-
-    result = Triple_addition(bc, result, t3_result);
+	result.t = bc->PutANDGate(included, matching);
+	result.f = bc->PutANDGate(included, non_matching);
+	result.u = bc->PutINVGate(included);
 
     return result;
 

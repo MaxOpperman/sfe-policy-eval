@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/osboxes/policy-eval
+CMAKE_SOURCE_DIR = /home/osboxes/sfe-policy-eval
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/osboxes/policy-eval
+CMAKE_BINARY_DIR = /home/osboxes/sfe-policy-eval
 
 # Include any dependencies generated for this target.
 include CMakeFiles/policy_test.dir/depend.make
@@ -59,42 +59,42 @@ include CMakeFiles/policy_test.dir/flags.make
 
 CMakeFiles/policy_test.dir/policy_test.cpp.o: CMakeFiles/policy_test.dir/flags.make
 CMakeFiles/policy_test.dir/policy_test.cpp.o: policy_test.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/osboxes/policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/policy_test.dir/policy_test.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/policy_test.dir/policy_test.cpp.o -c /home/osboxes/policy-eval/policy_test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/osboxes/sfe-policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/policy_test.dir/policy_test.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/policy_test.dir/policy_test.cpp.o -c /home/osboxes/sfe-policy-eval/policy_test.cpp
 
 CMakeFiles/policy_test.dir/policy_test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/policy_test.dir/policy_test.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/osboxes/policy-eval/policy_test.cpp > CMakeFiles/policy_test.dir/policy_test.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/osboxes/sfe-policy-eval/policy_test.cpp > CMakeFiles/policy_test.dir/policy_test.cpp.i
 
 CMakeFiles/policy_test.dir/policy_test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/policy_test.dir/policy_test.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/osboxes/policy-eval/policy_test.cpp -o CMakeFiles/policy_test.dir/policy_test.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/osboxes/sfe-policy-eval/policy_test.cpp -o CMakeFiles/policy_test.dir/policy_test.cpp.s
 
 CMakeFiles/policy_test.dir/common/policy.cpp.o: CMakeFiles/policy_test.dir/flags.make
 CMakeFiles/policy_test.dir/common/policy.cpp.o: common/policy.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/osboxes/policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/policy_test.dir/common/policy.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/policy_test.dir/common/policy.cpp.o -c /home/osboxes/policy-eval/common/policy.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/osboxes/sfe-policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/policy_test.dir/common/policy.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/policy_test.dir/common/policy.cpp.o -c /home/osboxes/sfe-policy-eval/common/policy.cpp
 
 CMakeFiles/policy_test.dir/common/policy.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/policy_test.dir/common/policy.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/osboxes/policy-eval/common/policy.cpp > CMakeFiles/policy_test.dir/common/policy.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/osboxes/sfe-policy-eval/common/policy.cpp > CMakeFiles/policy_test.dir/common/policy.cpp.i
 
 CMakeFiles/policy_test.dir/common/policy.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/policy_test.dir/common/policy.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/osboxes/policy-eval/common/policy.cpp -o CMakeFiles/policy_test.dir/common/policy.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/osboxes/sfe-policy-eval/common/policy.cpp -o CMakeFiles/policy_test.dir/common/policy.cpp.s
 
 CMakeFiles/policy_test.dir/common/parser.cpp.o: CMakeFiles/policy_test.dir/flags.make
 CMakeFiles/policy_test.dir/common/parser.cpp.o: common/parser.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/osboxes/policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/policy_test.dir/common/parser.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/policy_test.dir/common/parser.cpp.o -c /home/osboxes/policy-eval/common/parser.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/osboxes/sfe-policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/policy_test.dir/common/parser.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/policy_test.dir/common/parser.cpp.o -c /home/osboxes/sfe-policy-eval/common/parser.cpp
 
 CMakeFiles/policy_test.dir/common/parser.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/policy_test.dir/common/parser.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/osboxes/policy-eval/common/parser.cpp > CMakeFiles/policy_test.dir/common/parser.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/osboxes/sfe-policy-eval/common/parser.cpp > CMakeFiles/policy_test.dir/common/parser.cpp.i
 
 CMakeFiles/policy_test.dir/common/parser.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/policy_test.dir/common/parser.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/osboxes/policy-eval/common/parser.cpp -o CMakeFiles/policy_test.dir/common/parser.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/osboxes/sfe-policy-eval/common/parser.cpp -o CMakeFiles/policy_test.dir/common/parser.cpp.s
 
 # Object files for target policy_test
 policy_test_OBJECTS = \
@@ -123,7 +123,7 @@ policy_test: /usr/lib/x86_64-linux-gnu/libgmpxx.so
 policy_test: /usr/lib/x86_64-linux-gnu/libcrypto.so
 policy_test: /usr/lib/x86_64-linux-gnu/libgmp.so
 policy_test: CMakeFiles/policy_test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/osboxes/policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable policy_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/osboxes/sfe-policy-eval/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable policy_test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/policy_test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -136,6 +136,6 @@ CMakeFiles/policy_test.dir/clean:
 .PHONY : CMakeFiles/policy_test.dir/clean
 
 CMakeFiles/policy_test.dir/depend:
-	cd /home/osboxes/policy-eval && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/osboxes/policy-eval /home/osboxes/policy-eval /home/osboxes/policy-eval /home/osboxes/policy-eval /home/osboxes/policy-eval/CMakeFiles/policy_test.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/osboxes/sfe-policy-eval && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/osboxes/sfe-policy-eval /home/osboxes/sfe-policy-eval /home/osboxes/sfe-policy-eval /home/osboxes/sfe-policy-eval /home/osboxes/sfe-policy-eval/CMakeFiles/policy_test.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/policy_test.dir/depend
 

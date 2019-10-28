@@ -205,49 +205,7 @@ Triple Node::fa(BooleanCircuit *bc, Triple p1, Triple p2)
     return result;
 }
 
-
-/*
- *
- * Triple arithmetic
- *
- */
-
-Triple Node::Triple_addition(BooleanCircuit *bc, Triple t1, Triple t2)
-{
-    Triple result;
-    result.t = bc->PutADDGate(t1.t, t2.t);
-    result.f = bc->PutADDGate(t1.f, t2.f);
-    result.u = bc->PutADDGate(t1.u, t2.u);     
-
-    return result;
-}
-
-
-Triple Node::Triple_subtraction(BooleanCircuit *bc, Triple t1, Triple t2)
-{
-    Triple result;
-    result.t = bc->PutSUBGate(t1.t, t2.t);
-    result.f = bc->PutSUBGate(t1.f, t2.f);
-    result.u = bc->PutSUBGate(t1.u, t2.u);     
-
-    return result;
-}
-    
-Triple Node::Triple_scaling(BooleanCircuit *bc, Triple t, share *s)
-{
-    Triple result;
-    result.t = bc->PutMULGate(t.t, s);
-    result.u = bc->PutMULGate(t.u, s);
-    result.f = bc->PutMULGate(t.f, s);
-
-    return result;
-}
-
-/*
- *
- *  Inclusion gate
- *
- */ 
+// Inclusion gate 
 share *Node::PutINCGate(BooleanCircuit *bc, share *s_a, CipherSet s_bs) {
 
     share *intermediate, *equal_zero, *zero_share, *out;
@@ -263,35 +221,6 @@ share *Node::PutINCGate(BooleanCircuit *bc, share *s_a, CipherSet s_bs) {
     out = bc->PutEQGate(result, zero_share);
 
     return out;
-}
-
-// Policy evaluation for the target node
-Triple Target::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) {
-    Triple result, t2, t3, F, U;
-    uint32_t zero = 0;
-    uint32_t one = 1;
-
-    Triple r = this->target_evaluate(bc, role, bitlen, q);
-
-    share *one_share = bc->PutCONSGate(one, 1);
-    share *pi_t = bc->PutEQGate(r.t, one_share);
-    share *pi_u = bc->PutEQGate(r.u, one_share);
-    share *pi_f = bc->PutEQGate(r.f, one_share);
-
-    Triple pt = this->child1->evaluate(bc, role, bitlen, q);
-    result = this->Triple_scaling(bc, pt, pi_t);
-
-    U.t = bc->PutCONSGate(zero, 1);
-    U.f = bc->PutCONSGate(zero, 1);
-    U.u = bc->PutCONSGate(one, 1);
-
-    t2 = this->Triple_scaling(bc, U, pi_f);
-    result =  this->Triple_addition(bc, result, t2);
-
-    t3 = this->Triple_scaling(bc, U, pi_u);
-    result = this->Triple_addition(bc, result, t3);
-
-    return result;
 }
 
 CipherSet Node::query_attributes(Query& query)
@@ -312,6 +241,23 @@ CipherSet Node::query_values(Query& query)
     }
     
     return values;
+}
+
+// Policy evaluation for the target node
+Triple Target::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) {
+    Triple result;
+
+    Triple eval_t = this->target_evaluate(bc, role, bitlen, q);
+    Triple eval_p = this->child1->evaluate(bc, role, bitlen, q);
+
+	share *target_f_or_u = bc->PutORGate(eval_t.f, eval_t.u);
+	share *target_t_and_policy_u = bc->PutANDGate(eval_t.t, eval_p.u);
+
+	result.t = bc->PutANDGate(eval_t.t, eval_p.t);
+	result.f = bc->PutANDGate(eval_t.t, eval_p.f);
+	result.u = bc->PutORGate(target_f_or_u, target_t_and_policy_u);
+
+    return result;
 }
 
 // Perform target evaluation
@@ -359,7 +305,6 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
 	share *non_matching = bc->PutINVGate(matching);
 	share *included = PutINCGate(bc, this->attribute, Aq);
 
-
 	result.t = bc->PutANDGate(included, matching);
 	result.f = bc->PutANDGate(included, non_matching);
 	result.u = bc->PutINVGate(included);
@@ -371,28 +316,13 @@ Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen,
 // Policy evaluation for leaf nodes
 Triple Leaf::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q)
 {
-    Triple left, right, result;
-    uint32_t zero = 0;
-    uint32_t one = 1;
-
-    // [x=1] MUL T
-    Triple T;
-    T.t = bc->PutCONSGate(one, 1);
-    T.f = bc->PutCONSGate(zero, 1);
-    T.u = bc->PutCONSGate(zero, 1);
-    left = Triple_scaling(bc, T, this->value);
-
-    // [x=0] MUL F
-    Triple F;
-    F.t = bc->PutCONSGate(zero, 1);
-    F.f = bc->PutCONSGate(one, 1);
-    F.u = bc->PutCONSGate(zero, 1);
+    Triple result;
+	uint32_t zero = 0;
     share* zero_share = bc->PutCONSGate(zero, 1);
-    share* eq_zero = bc->PutEQGate(this->value, zero_share);
 
-    right = Triple_scaling(bc, F, eq_zero);
-
-    result = Triple_addition(bc, left, right);
+    result.t = this->value;
+    result.f = bc->PutEQGate(this->value, zero_share);
+    result.u = zero_share;
 
     return result;
 }

@@ -7,8 +7,9 @@ sudo apt-get install g++ make cmake libgmp-dev libssl-dev libboost-all-dev
 ```
 After which you can clone the repository:
 ```
-git clone https://gitlab.com/Restored/sfe-policy-eval.git
+git clone https://gitlab.com/Restored/sfe-policy-eval.git --recursive
 ```
+The recursive flag makes sure that the ABY submodule is also loaded.
 
 ## Files
 - policy_test.cpp - entry point of the application reads CLI arguments.

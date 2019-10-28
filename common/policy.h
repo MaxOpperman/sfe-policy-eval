@@ -49,11 +49,6 @@ public:
     CipherSet query_attributes(Query& query);
     CipherSet query_values(Query& query);
 
-    Triple Triple_addition(BooleanCircuit *bc, Triple t1, Triple t2);
-    Triple Triple_subtraction(BooleanCircuit *bc, Triple t1, Triple t2);
-    Triple Triple_scaling(BooleanCircuit *bc, Triple t, share *s);
-    Triple Triple_equality();
-
     Triple smax(BooleanCircuit *bc, Triple t1, Triple t2);
     Triple smin(BooleanCircuit *bc, Triple t1, Triple t2);
     Triple wmax(BooleanCircuit *bc, Triple t1, Triple t2);

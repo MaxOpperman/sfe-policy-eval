@@ -243,6 +243,10 @@ CipherSet Node::query_values(Query& query)
     return values;
 }
 
+Triple DummyTarget::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) {
+	return this->result;
+}
+
 // Policy evaluation for the target node
 Triple Target::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) {
     Triple result;

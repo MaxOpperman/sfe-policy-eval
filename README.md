@@ -11,14 +11,17 @@ git clone https://gitlab.com/Restored/sfe-policy-eval.git --recursive
 ```
 The recursive flag makes sure that the ABY submodule is also loaded.
 
-## Files
+## Structure
 - policy_test.cpp - entry point of the application reads CLI arguments.
 - common/policy.h - definition of data structures (pair, query, triple, tree nodes)
 - common/policy.cpp - implementation of target and policy evaluation, triple arithmetic and combination rules.
 - common/parser.h - contains parser data structures (Strings and StringSets).
-- common/parser.cpp - parses string represetnation of policiesi to actual datastructures.
+- common/parser.cpp - parses string representation of policies and transforms them into actual data structures.
 
 ## Running the experiments
+
+Make sure that ```PRINT_PERFORMANCE_STATS``` and ```PRINT_COMMUNICATION_STATS``` are set to 1 in ABY/src/abycore/ABY_utils/ABYconstants.h
+
 In one terminal do:
 ```
 ./policy_test -r 1

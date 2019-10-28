@@ -75,8 +75,22 @@ public:
     {
     }
 
-    Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) ;
+    Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
     Triple target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
+
+};
+
+class DummyTarget : public Node
+{
+public:
+	Triple result;
+
+	DummyTarget(Triple r, Node *c1)
+		: Node(c1, NULL), result(r)
+	{
+	}
+
+	Triple evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q);
 
 };
 

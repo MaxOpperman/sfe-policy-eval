@@ -122,6 +122,14 @@ cstdint
 vector
 -
 
+/home/osboxes/sfe-policy-eval/common/parser.cpp
+parser.h
+/home/osboxes/sfe-policy-eval/common/parser.h
+
+/home/osboxes/sfe-policy-eval/common/parser.h
+policy.h
+/home/osboxes/sfe-policy-eval/common/policy.h
+
 /home/osboxes/sfe-policy-eval/common/policy.cpp
 policy.h
 /home/osboxes/sfe-policy-eval/common/policy.h
@@ -146,6 +154,26 @@ math.h
 cassert
 -
 
+/home/osboxes/sfe-policy-eval/policy_test.cpp
+ENCRYPTO_utils/crypto/crypto.h
+-
+ENCRYPTO_utils/parse_options.h
+-
+ABY/src/abycore/aby/abyparty.h
+/home/osboxes/sfe-policy-eval/ABY/src/abycore/aby/abyparty.h
+iostream
+-
+fstream
+-
+sstream
+-
+common/policy.h
+/home/osboxes/sfe-policy-eval/common/policy.h
+common/parser.h
+/home/osboxes/sfe-policy-eval/common/parser.h
+chrono
+-
+
 /usr/include/x86_64-linux-gnu/gmp.h
 iosfwd
 -
@@ -168,6 +196,14 @@ ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/constants.h
 typedefs.h
 ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/typedefs.h
 cstdint
+-
+
+ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/crypto/crypto.h
+openssl/evp.h
+-
+../constants.h
+ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/constants.h
+mutex
 -
 
 ABY/extern/ENCRYPTO_utils/src/ENCRYPTO_utils/parse_options.h

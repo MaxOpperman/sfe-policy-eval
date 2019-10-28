@@ -8,6 +8,7 @@ typedef std::vector<String> StringSet;
 
 StringSet split_parsing(const String& line);
 Node* leaf_parsing(BooleanCircuit *bc, uint32_t bitlen, const String& line);
+Node* dummy_target_parsing(BooleanCircuit *bc, uint32_t bitlen, String line);
 Node* target_parsing(BooleanCircuit *bc, uint32_t bitlen, String line);
 Node* operation_parsing(BooleanCircuit *bc, uint32_t bitlen, String line);
 Node* policy_parsing(BooleanCircuit *bc, uint32_t bitlen, const String& line);

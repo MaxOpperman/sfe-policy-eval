@@ -45,6 +45,27 @@ Node* leaf_parsing(BooleanCircuit *bc, uint32_t bitlen, const String& line) {
     return leaf;
 }
 
+Node* dummy_target_parsing(BooleanCircuit *bc, uint32_t bitlen, String line) {
+	Node *dummy_target;
+
+    line = line.substr(2, line.length() - 3);
+    StringSet parts = split_parsing(line);
+
+	Triple result;
+    uint32_t t = std::stoi(parts[0]);
+    uint32_t f = std::stoi(parts[1]);
+    uint32_t u = std::stoi(parts[2]);
+    result.t = bc->PutINGate(t, bitlen, SERVER);
+    result.f = bc->PutINGate(f, bitlen, SERVER);
+    result.u = bc->PutINGate(u, bitlen, SERVER);
+
+    String line1 = parts[3].substr(1, parts[3].length() - 2);
+    Node *child1 = policy_parsing(bc, bitlen, line1);
+    dummy_target = new DummyTarget(result, child1);
+
+	return dummy_target;
+}
+
 Node* target_parsing(BooleanCircuit *bc, uint32_t bitlen, String line) {
     Node *target;
 
@@ -155,6 +176,8 @@ Node* policy_parsing(BooleanCircuit *bc, uint32_t bitlen, const String& line) {
         policy = leaf_parsing(bc, bitlen, line);
     } else if (line.substr(0, 1) == "T") {
         policy = target_parsing(bc, bitlen, line);
+	} else if (line.substr(0, 1) == "D") {
+		policy = dummy_target_parsing(bc, bitlen, line);
     } else {
         policy = operation_parsing(bc, bitlen, line);
     }

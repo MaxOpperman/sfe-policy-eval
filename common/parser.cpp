@@ -59,9 +59,7 @@ Node* dummy_target_parsing(BooleanCircuit *bc, uint32_t bitlen, String line) {
     result.f = bc->PutINGate(f, bitlen, SERVER);
     result.u = bc->PutINGate(u, bitlen, SERVER);
 
-    String line1 = parts[3].substr(1, parts[3].length() - 2);
-    Node *child1 = policy_parsing(bc, bitlen, line1);
-    dummy_target = new DummyTarget(result, child1);
+    dummy_target = new DummyTarget(result);
 
 	return dummy_target;
 }

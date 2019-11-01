@@ -130,14 +130,6 @@ parser.h
 policy.h
 /home/osboxes/sfe-policy-eval/common/policy.h
 
-/home/osboxes/sfe-policy-eval/common/policy.cpp
-policy.h
-/home/osboxes/sfe-policy-eval/common/policy.h
-../ABY/src/abycore/circuit/booleancircuits.h
-/home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/booleancircuits.h
-../ABY/src/abycore/sharing/sharing.h
-/home/osboxes/sfe-policy-eval/ABY/src/abycore/sharing/sharing.h
-
 /home/osboxes/sfe-policy-eval/common/policy.h
 ../ABY/src/abycore/circuit/booleancircuits.h
 /home/osboxes/sfe-policy-eval/ABY/src/abycore/circuit/booleancircuits.h

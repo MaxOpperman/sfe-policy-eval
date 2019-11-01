@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 from random import choice
 
 DEBUG = False
@@ -26,7 +27,10 @@ def generate_query(query_length):
 
     return query[:-2]
 
-def generate(targets, operations, repetitions, query_length):
+def generate_dummy_target(decision):
+	return 'D(%d, %d, %d)' % (decision[0], decision[1], decision[2])
+
+def generate_experiment1(targets, operations, repetitions, query_length):
     for t in targets:
         for q in query_length:
             for x in range(1, repetitions + 1):
@@ -35,18 +39,27 @@ def generate(targets, operations, repetitions, query_length):
 
                 print("[%d, %d, %d, %d]===[%s]===[%s]" % (t, operations, q, x, query, policy))
 
+def generate_experiment2(targets, operations, repetitions, query_length):
+	decisions = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+	ops = ['smax', 'smin', 'wmax', 'wmin', 'po', 'do', 'fa']
+	for k in range(1, repetitions+1):	
+		for x in decisions:
+				print("[0, 1, 1, %d]===[{1, 1}]===[wea((%s))]" % (k, generate_dummy_target(x)))
+				print("[0, 1, 1, %d]===[{1, 1}]===[not((%s))]" % (k, generate_dummy_target(x)))
+				for y in decisions:
+					for o in ops:
+						print("[0, 1, 1, %d]===[{1, 1}]===[%s((%s), (%s))]" % (k, o, generate_dummy_target(x), generate_dummy_target(y)))
 def main():
     targets = [1]
     operations = 0
     repetitions = 50
     query_length = range(1, 21)
 
-
     if DEBUG:
         print("Starting generator")
         print("Targets: %d \nOperations: %d \nRepetitions: %d \nQuery length: %d \n" % (len(targets), operations, repetitions, len(query_length)))
 
-    generate(targets, operations, repetitions, query_length)
+    generate_experiment2(targets, operations, repetitions, query_length)
 
 if __name__ == "__main__":
     main()

@@ -85,8 +85,8 @@ class DummyTarget : public Node
 public:
 	Triple result;
 
-	DummyTarget(Triple r, Node *c1)
-		: Node(c1, NULL), result(r)
+	DummyTarget(Triple r)
+		: Node(NULL, NULL), result(r)
 	{
 	}
 

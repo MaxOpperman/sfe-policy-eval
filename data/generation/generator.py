@@ -67,7 +67,7 @@ def generate_target_experiment1():
     cond = choice(conditions)
     leaf = generate_leaf()
 
-    return "T(%d, %d, %d, %s)" % (attr, val, cond, leaf)
+    return "T(%d, %d, %d, (%s))" % (attr, val, cond, leaf)
 
 def generate_query(query_length):
     query = ""
@@ -95,11 +95,11 @@ def generate_experiment2(targets, operations, repetitions, query_length):
     ops = ['smax', 'smin', 'wmax', 'wmin', 'po', 'do', 'fa']
     for k in range(1, repetitions+1):	
             for x in decisions:
-                            print("[0, 1, 1, %d]===[{1, 1}]===[wea((%s))]" % (k, generate_dummy_target(x)))
-                            print("[0, 1, 1, %d]===[{1, 1}]===[not((%s))]" % (k, generate_dummy_target(x)))
-                            for y in decisions:
-                                    for o in ops:
-                                            print("[0, 1, 1, %d]===[{1, 1}]===[%s((%s), (%s))]" % (k, o, generate_dummy_target(x), generate_dummy_target(y)))
+                print("[0, 1, 1, %d]===[{1, 1}]===[wea((%s))]" % (k, generate_dummy_target(x)))
+                print("[0, 1, 1, %d]===[{1, 1}]===[not((%s))]" % (k, generate_dummy_target(x)))
+                for y in decisions:
+                        for o in ops:
+                                print("[0, 1, 1, %d]===[{1, 1}]===[%s((%s), (%s))]" % (k, o, generate_dummy_target(x), generate_dummy_target(y)))
 
 def generate_experiment3(repetitions, max_targets):
     global number_of_targets
@@ -116,7 +116,8 @@ def main():
     repetitions = 50
     query_length = range(1, 21)
 
-    generate_experiment3(repetitions, 50)
+    #generate_experiment3(repetitions, 50)
+    generate_experiment1(targets, operations, repetitions, query_length)
 
 if __name__ == "__main__":
     main()

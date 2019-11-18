@@ -80,6 +80,7 @@ Node* target_parsing(BooleanCircuit *bc, uint32_t bitlen, String line) {
     String line1 = parts[3].substr(1, parts[3].length() - 2);
     Node *child1 = policy_parsing(bc, bitlen, line1);
     target = new Target(attr, value, condition, child1);
+    std::cout << "target";
 
     return target;
 }

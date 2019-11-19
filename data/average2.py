@@ -27,4 +27,4 @@ with open("output-online.txt") as fh:
             cur_time = 0
             cur_bandwidth = 0
 
-print(graph[:-1])
+print(graph)

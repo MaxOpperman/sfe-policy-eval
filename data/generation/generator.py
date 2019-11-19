@@ -93,13 +93,15 @@ def generate_experiment1(targets, operations, repetitions, query_length):
 def generate_experiment2(targets, operations, repetitions, query_length):
     decisions = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
     ops = ['smax', 'smin', 'wmax', 'wmin', 'po', 'do', 'fa']
-    for k in range(1, repetitions+1):	
-            for x in decisions:
-                print("[0, 1, 1, %d]===[{1, 1}]===[wea((%s))]" % (k, generate_dummy_target(x)))
-                print("[0, 1, 1, %d]===[{1, 1}]===[not((%s))]" % (k, generate_dummy_target(x)))
-                for y in decisions:
-                        for o in ops:
-                                print("[0, 1, 1, %d]===[{1, 1}]===[%s((%s), (%s))]" % (k, o, generate_dummy_target(x), generate_dummy_target(y)))
+    for x in decisions:
+        for k in range(1, repetitions+1):
+            print("[0, 1, 1, %d]===[{1, 1}]===[wea((%s))]" % (k, generate_dummy_target(x)))
+        for k in range(1, repetitions+1):
+            print("[0, 1, 1, %d]===[{1, 1}]===[not((%s))]" % (k, generate_dummy_target(x)))
+        for y in decisions:
+            for o in ops:
+                for k in range(1, repetitions+1):
+                    print("[0, 1, 1, %d]===[{1, 1}]===[%s((%s), (%s))]" % (k, o, generate_dummy_target(x), generate_dummy_target(y)))
 
 def generate_experiment3(repetitions, max_targets):
     global number_of_targets
@@ -117,7 +119,7 @@ def main():
     query_length = range(1, 21)
 
     #generate_experiment3(repetitions, 50)
-    generate_experiment1(targets, operations, repetitions, query_length)
+    generate_experiment2(targets, operations, repetitions, query_length)
 
 if __name__ == "__main__":
     main()

@@ -69,7 +69,7 @@ StringSet split_line(const String& line)
 
 int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl seclvl,	uint32_t nvals, uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing) {
 
-    std::ifstream input("data/experiment1.txt");
+    std::ifstream input("data/experiment.txt");
     int number = 0;
 
     String line;

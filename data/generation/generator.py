@@ -118,8 +118,8 @@ def main():
     repetitions = 50
     query_length = [13]
 
-    #generate_experiment3(repetitions, 50)
-    generate_experiment1(targets, operations, repetitions, query_length)
+    generate_experiment3(repetitions, 50)
+    #generate_experiment1(targets, operations, repetitions, query_length)
 
 if __name__ == "__main__":
     main()

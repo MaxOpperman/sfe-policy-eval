@@ -267,7 +267,6 @@ Triple Target::evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query 
 // Perform target evaluation
 Triple Target::target_evaluate(BooleanCircuit *bc, e_role role, uint32_t bitlen, Query q) {
     CipherSet Aq = this->query_attributes(q);
-    CipherSet Vq = this->query_values(q);
 
     Triple result;
 

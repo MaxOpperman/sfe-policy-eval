@@ -12,10 +12,9 @@ LINES=$(wc -l data/current_experiment.txt |awk '{ print $1 }')
 
 echo "Running experiment $1 consisting of $LINES policies";
 
-while [ "$LINES" -ne 0 ]; do
-    echo $LINES
+while [ $LINES -ne 0 ]; do
     head -50 data/current_experiment.txt > data/experiment.txt
     sed -i -e "1,50d" data/current_experiment.txt
-    LINES=$(wc -l data/current_experiment.txt | awk '{ print $1 }')
     ./policy_test -r 1 & ./policy_test -r 0 | ./to_output.py
+    LINES=$(wc -l data/current_experiment.txt | awk '{ print $1 }')
 done

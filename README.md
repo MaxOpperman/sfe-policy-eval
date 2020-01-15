@@ -1,4 +1,4 @@
-# Secure function evaluation for Policy Evaluation
+# Privacy-preserving policy evaluation using secure function evaluation (ABY)
 
 ## Installation
 First install the packages required by ABY:
@@ -7,7 +7,7 @@ sudo apt-get install g++ make cmake libgmp-dev libssl-dev libboost-all-dev
 ```
 After which you can clone the repository:
 ```
-git clone https://gitlab.com/Restored/sfe-policy-eval.git --recursive
+git clone https://github.com/IschaStork/sfe-policy-eval.git --recursive
 ```
 The recursive flag makes sure that the ABY submodule is also loaded.
 

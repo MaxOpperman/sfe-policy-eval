@@ -11,6 +11,16 @@ git clone https://github.com/IschaStork/sfe-policy-eval.git --recursive
 ```
 The recursive flag makes sure that the ABY submodule is also loaded.
 
+## Docker Setup
+Build the project using:
+```
+docker build -t sfe .
+```
+And after that, use the following command to run the docker container:
+```
+docker run -p 127.0.0.1:7766:7766 -it sfe bash
+```
+
 ## Structure
 - policy_test.cpp - entry point of the application reads CLI arguments.
 - common/policy.h - definition of data structures (pair, query, triple, tree nodes)

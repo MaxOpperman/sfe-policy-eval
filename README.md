@@ -1,5 +1,5 @@
-# Privacy-preserving policy evaluation using secure function evaluation (ABY)
-
+# IST Seminar 2021/2022 Group 11
+**Privacy-preserving policy evaluation using secure function evaluation (ABY)**
 ## Installation
 First install the packages required by ABY:
 ```
@@ -11,7 +11,7 @@ git clone https://github.com/IschaStork/sfe-policy-eval.git --recursive
 ```
 The recursive flag makes sure that the ABY submodule is also loaded.
 
-## Docker Setup
+### Docker Setup
 Build the project using:
 ```
 docker build -t sfe .

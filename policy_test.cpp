@@ -100,7 +100,7 @@ int32_t simulate(e_role role, const std::string& address, uint16_t port, seclvl 
                 party->ExecCircuit();
                 float difference = float( clock() - begin_time ) / CLOCKS_PER_SEC;
 
-                if(role == SERVER) {
+                if (role == SERVER) {
                     uint32_t t_output = s_t->get_clear_value<uint32_t>();
                     uint32_t f_output = s_f->get_clear_value<uint32_t>();
                     uint32_t u_output = s_u->get_clear_value<uint32_t>();

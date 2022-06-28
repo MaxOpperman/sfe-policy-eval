@@ -16,7 +16,7 @@ start_time=$SECONDS
 while [ "$LINES" -ne 0 ]; do
     head -50 data/current_experiment.txt > data/experiment.txt
     sed -i -e "1,50d" data/current_experiment.txt
-    ./policy_test -r 2 -dsa 172.0.0.2 -stpa 172.0.0.3 -dsp 4080 -stpp 4081
+    ./policy_test -r 2 -d 172.0.0.2 -a 172.0.0.3 -p 4080 -q 4081
     LINES=$(wc -l data/current_experiment.txt | awk '{ print $1 }')
 done
 elapsed=$((SECONDS - start_time))

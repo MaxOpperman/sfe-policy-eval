@@ -34,13 +34,13 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 					(void*) bitlen, T_NUM, "b", "Bit-length, default 32", false,
 					false }, { (void*) secparam, T_NUM, "s",
 					"Symmetric Security Bits, default: 128", false, false }, {
-                    (void*) server_address, T_STR, "dsa",
+                    (void*) server_address, T_STR, "d",
                     "Data Server IP-address, default: localhost", false, false }, {
-                    (void*) stp_address, T_STR, "stpa",
+                    (void*) stp_address, T_STR, "a",
                     "STP IP-address, default: localhost", false, false }, {
-                    (void*) &int_server_port, T_NUM, "dsp", "Data Server Port, default: 7766", false,
+                    (void*) &int_server_port, T_NUM, "p", "Data Server Port, default: 7766", false,
                     false }, {
-                    (void*) &int_stp_port, T_NUM, "stpp", "STP Port, default: 7766", false,
+                    (void*) &int_stp_port, T_NUM, "q", "STP Port, default: 7766", false,
                     false }, { (void*) test_op, T_NUM, "t",
 					"Single test (leave out for all operations), default: off",
 					false, false }};

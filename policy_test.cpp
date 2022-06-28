@@ -4,9 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
-// Server side C/C++ program to demonstrate Socket
-// programming
+// Server side C/C++ program to demonstrate Socket programming
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -67,105 +67,6 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 	//delete options;
 
 	return 1;
-}
-
-
-int32_t send_request(const std::string& address_server, uint16_t port_server) {
-    int sock = 0, read_value, client_fd;
-    struct sockaddr_in serv_addr;
-    std::string hello = "Hello from client";
-    char buffer[1024] = { 0 };
-
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
-        return -1;
-    }
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port_server);
-
-    // Convert IPv4 and IPv6 addresses from text to binary
-    // form
-    if (inet_pton(AF_INET, address_server, &serv_addr.sin_addr)
-        <= 0) {
-        printf(
-                "\nInvalid address/ Address not supported \n");
-        return -1;
-    }
-
-    if ((client_fd
-                 = connect(sock, (struct sockaddr*)&serv_addr,
-                           sizeof(serv_addr)))
-        < 0) {
-        printf("\nConnection Failed \n");
-        return -1;
-    }
-    send(sock, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
-    read_value = read(sock, buffer, 1024);
-    printf("%s\n", buffer);
-
-    // closing the connected socket
-    close(client_fd);
-    return 0;
-}
-
-int32_t receive_request(const std::string& address_server, uint16_t port_server, const std::string& ds_address,
-                        uint16_t ds_port, seclvl seclvl, uint32_t nvals, uint32_t bitlen, uint32_t nthreads,
-                        e_mt_gen_alg mt_alg) {
-    int server_fd, new_socket, valread;
-    int opt = 1;
-    char buffer[1024] = { 0 };
-    std::string hello = "Hello from server";
-
-    // Creating socket file descriptor
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-    }
-
-    // Forcefully attaching socket to the port 8080
-    if (setsockopt(server_fd, SOL_SOCKET,
-                   SO_REUSEADDR | SO_REUSEPORT, &opt,
-                   sizeof(opt))) {
-        perror("setsockopt");
-        exit(EXIT_FAILURE);
-    }
-    address_server.sin_family = AF_INET;
-    address_server.sin_addr.s_addr = INADDR_ANY;
-    address_server.sin_port = htons(port_server);
-
-    // Forcefully attaching socket to the port 8080
-    if (bind(server_fd, (struct sockaddr*)&address_server,
-             sizeof(address_server))
-        < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-    }
-    if (listen(server_fd, 3) < 0) {
-        perror("listen");
-        exit(EXIT_FAILURE);
-    }
-    if ((new_socket
-                 = accept(server_fd, (struct sockaddr*)&address_server,
-                          (socklen_t*)&addrlen))
-        < 0) {
-        perror("accept");
-        exit(EXIT_FAILURE);
-    }
-    valread = read(new_socket, buffer, 1024);
-
-    simulate(CLIENT, ds_address, ds_port, seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
-    printf("%s\n", buffer);
-
-    send(new_socket, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
-
-    // closing the connected socket
-    close(new_socket);
-    // closing the listening socket
-    shutdown(server_fd, SHUT_RDWR);
-    return 0;
 }
 
 StringSet split_line(const String& line)
@@ -243,6 +144,105 @@ string simulate(e_role role, const std::string& address, uint16_t port, seclvl s
     return "";
 }
 
+
+int32_t send_request(const std::string& address_server, uint16_t port_server) {
+    int sock = 0, read_value, client_fd;
+    struct sockaddr_in serv_addr;
+    char* hello = "Hello from client";
+    char buffer[1024] = { 0 };
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port_server);
+
+    // Convert IPv4 and IPv6 addresses from text to binary
+    // form
+    if (inet_pton(AF_INET, address_server.c_str(), &serv_addr.sin_addr)
+        <= 0) {
+        printf(
+                "\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+
+    if ((client_fd
+                 = connect(sock, (struct sockaddr*)&serv_addr,
+                           sizeof(serv_addr)))
+        < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
+    }
+    send(sock, hello, strlen(hello), 0);
+    printf("Hello message sent\n");
+    read_value = read(sock, buffer, 1024);
+    printf("%s\n", buffer);
+
+    // closing the connected socket
+    close(client_fd);
+    return 0;
+}
+
+int32_t receive_request(const std::string& address_server, uint16_t port_server, const std::string& stp_address,
+                        uint16_t stp_port, seclvl seclvl, uint32_t nvals, uint32_t bitlen, uint32_t nthreads,
+                        e_mt_gen_alg mt_alg) {
+    int server_fd, new_socket, valread;
+    int opt = 1;
+    char buffer[1024] = { 0 };
+    char* hello = "Hello from server";
+
+    // Creating socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Forcefully attaching socket to the port 8080
+    if (setsockopt(server_fd, SOL_SOCKET,
+                   SO_REUSEADDR | SO_REUSEPORT, &opt,
+                   sizeof(opt))) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+    address_server.sin_family = AF_INET;
+    address_server.sin_addr.s_addr = INADDR_ANY;
+    address_server.sin_port = htons(port_server);
+
+    // Forcefully attaching socket to the port 8080
+    if (bind(server_fd, (struct sockaddr*)&address_server,
+             sizeof(address_server))
+        < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+    if (listen(server_fd, 3) < 0) {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+    if ((new_socket
+                 = accept(server_fd, (struct sockaddr*)&address_server,
+                          (socklen_t*)&addrlen))
+        < 0) {
+        perror("accept");
+        exit(EXIT_FAILURE);
+    }
+    valread = read(new_socket, buffer, 1024);
+
+    simulate(CLIENT, stp_address, stp_port, seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
+    printf("%s\n", buffer);
+
+    send(new_socket, hello, strlen(hello), 0);
+    printf("Hello message sent\n");
+
+    // closing the connected socket
+    close(new_socket);
+    // closing the listening socket
+    shutdown(server_fd, SHUT_RDWR);
+    return 0;
+}
+
 int32_t simulate_request(e_role role, const std::string& req_address, uint16_t req_port, const std::string& ds_address,
                          uint16_t ds_port, seclvl seclvl, uint32_t nvals, uint32_t bitlen, uint32_t nthreads,
                          e_mt_gen_alg mt_alg, e_sharing sharing) {
@@ -251,7 +251,7 @@ int32_t simulate_request(e_role role, const std::string& req_address, uint16_t r
 
     const clock_t begin_time = clock();
     if (role == SERVER) {
-        receive_request(req_address, req_port);
+        receive_request(req_address, req_port, ds_address, ds_port, seclvl, nvals, bitlen, nthreads, mt_alg);
     } else {
         std::string decision = send_request(req_address, req_port);
     }
@@ -284,12 +284,12 @@ int main(int argc, char** argv) {
     }
     // simulate the client; first receive the request, then simulate the data server, and send back the result
     else if (role == CLIENT) {
-        simulate_request(SERVER, address_requester, port_requester, address_server, port_server, seclvl, 1, 32,
+        simulate_request(SERVER, address_requester, port_requester, address_server, port_server, seclvl, nthreads, 32,
                          nthreads, mt_alg, S_BOOL);
     }
     // otherwise the role is the server (STP)
     else {
-        simulate(role, address, port, seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
+        simulate(role, address_server, port_server, seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
     }
 
     std::cout << "End of the simulation for " << role << std::endl;

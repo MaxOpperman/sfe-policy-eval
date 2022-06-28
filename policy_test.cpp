@@ -21,10 +21,10 @@
 
 int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 		uint32_t* bitlen, uint32_t* nvals, uint32_t* secparam, std::string* server_address,
-                          uint16_t* server_port, std::string* requester_address,
-                          uint16_t* requester_port, int32_t* test_op) {
+                          uint16_t* server_port, std::string* stp_address,
+                          uint16_t* stp_port, int32_t* test_op) {
 
-	uint32_t int_role = 0, int_server_port = 0, int_requester_port = 0;
+	uint32_t int_role = 0, int_server_port = 0, int_stp_port = 0;
 	bool useffc = false;
 
 	parsing_ctx options[] =
@@ -34,13 +34,13 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 					(void*) bitlen, T_NUM, "b", "Bit-length, default 32", false,
 					false }, { (void*) secparam, T_NUM, "s",
 					"Symmetric Security Bits, default: 128", false, false }, {
-                    (void*) server_address, T_STR, "sa",
-                    "Server IP-address, default: localhost", false, false }, {
-                    (void*) requester_address, T_STR, "ra",
-                    "Requester IP-address, default: localhost", false, false }, {
-                    (void*) &int_server_port, T_NUM, "sp", "Server Port, default: 7766", false,
+                    (void*) server_address, T_STR, "dsa",
+                    "Data Server IP-address, default: localhost", false, false }, {
+                    (void*) requester_address, T_STR, "stpa",
+                    "STP IP-address, default: localhost", false, false }, {
+                    (void*) &int_server_port, T_NUM, "dsp", "Data Server Port, default: 7766", false,
                     false }, {
-                    (void*) &int_requester_port, T_NUM, "rp", "Requester Port, default: 7766", false,
+                    (void*) &int_stp_port, T_NUM, "stpp", "STP Port, default: 7766", false,
                     false }, { (void*) test_op, T_NUM, "t",
 					"Single test (leave out for all operations), default: off",
 					false, false }};
@@ -59,9 +59,9 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
         assert(int_server_port < 1 << (sizeof(uint16_t) * 8));
         *server_port = (uint16_t) int_server_port;
     }
-    if (int_requester_port != 0) {
-        assert(int_requester_port < 1 << (sizeof(uint16_t) * 8));
-        *requester_port = (uint16_t) int_requester_port;
+    if (int_stp_port != 0) {
+        assert(int_stp_port < 1 << (sizeof(uint16_t) * 8));
+        *stp_port = (uint16_t) int_stp_port;
     }
 
 	//delete options;
@@ -86,7 +86,7 @@ StringSet split_line(const String& line)
     return parts;
 }
 
-string simulate(e_role role, const std::string& address, uint16_t port, seclvl seclvl, uint32_t nvals,
+String simulate(e_role role, const std::string& address, uint16_t port, seclvl seclvl, uint32_t nvals,
                  uint32_t bitlen, uint32_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing) {
     std::ifstream input("data/experiment.txt");
     int number = 0;
@@ -145,7 +145,7 @@ string simulate(e_role role, const std::string& address, uint16_t port, seclvl s
 }
 
 
-int32_t send_request(const std::string& address_server, uint16_t port_server) {
+String send_request(const std::string& address_server, uint16_t port_server) {
     int sock = 0, read_value, client_fd;
     struct sockaddr_in serv_addr;
     char* hello = "Hello from client";
@@ -176,20 +176,22 @@ int32_t send_request(const std::string& address_server, uint16_t port_server) {
         return -1;
     }
     send(sock, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
+    std::cout << "Hello message sent from Access Requester!" << std::endl;
     read_value = read(sock, buffer, 1024);
-    printf("%s\n", buffer);
+    std::cout << "Received on Access Requester: " << buffer << std::endl;
 
     // closing the connected socket
     close(client_fd);
-    return 0;
+    return buffer;
 }
 
-int32_t receive_request(const std::string& address_server, uint16_t port_server, const std::string& stp_address,
+int32_t receive_request(const std::string& address_ds, uint16_t port_ds, const std::string& stp_address,
                         uint16_t stp_port, seclvl seclvl, uint32_t nvals, uint32_t bitlen, uint32_t nthreads,
                         e_mt_gen_alg mt_alg) {
     int server_fd, new_socket, valread;
     int opt = 1;
+    struct sockaddr_in address;
+    int addrlen = sizeof(address);
     char buffer[1024] = { 0 };
     char* hello = "Hello from server";
 
@@ -206,13 +208,13 @@ int32_t receive_request(const std::string& address_server, uint16_t port_server,
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
-    address_server.sin_family = AF_INET;
-    address_server.sin_addr.s_addr = INADDR_ANY;
-    address_server.sin_port = htons(port_server);
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(port_ds);
 
     // Forcefully attaching socket to the port 8080
-    if (bind(server_fd, (struct sockaddr*)&address_server,
-             sizeof(address_server))
+    if (bind(server_fd, (struct sockaddr*)&address,
+             sizeof(address))
         < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
@@ -222,7 +224,7 @@ int32_t receive_request(const std::string& address_server, uint16_t port_server,
         exit(EXIT_FAILURE);
     }
     if ((new_socket
-                 = accept(server_fd, (struct sockaddr*)&address_server,
+                 = accept(server_fd, (struct sockaddr*)&address,
                           (socklen_t*)&addrlen))
         < 0) {
         perror("accept");
@@ -230,11 +232,11 @@ int32_t receive_request(const std::string& address_server, uint16_t port_server,
     }
     valread = read(new_socket, buffer, 1024);
 
+    std::cout << "Received on Data Server: " << buffer << std::endl;
     simulate(CLIENT, stp_address, stp_port, seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
-    printf("%s\n", buffer);
 
     send(new_socket, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
+    std::cout << "Hello message sent from Data Server!" << std::endl;
 
     // closing the connected socket
     close(new_socket);
@@ -243,19 +245,20 @@ int32_t receive_request(const std::string& address_server, uint16_t port_server,
     return 0;
 }
 
-int32_t simulate_request(e_role role, const std::string& req_address, uint16_t req_port, const std::string& ds_address,
-                         uint16_t ds_port, seclvl seclvl, uint32_t nvals, uint32_t bitlen, uint32_t nthreads,
-                         e_mt_gen_alg mt_alg, e_sharing sharing) {
+int32_t simulate_request(e_role role, const std::string& ds_address, uint16_t ds_port, const std::string& stp_address,
+                         uint16_t stp_port, seclvl seclvl, uint32_t nvals, uint32_t bitlen, uint32_t nthreads,
+                         e_mt_gen_alg mt_alg) {
 
     std::cout << "Creating access request role " << role << " (0 - Access Requester / 1 Data Server)" << std::endl;
 
-    const clock_t begin_time = clock();
     if (role == SERVER) {
-        receive_request(req_address, req_port, ds_address, ds_port, seclvl, nvals, bitlen, nthreads, mt_alg);
+        receive_request(ds_address, ds_port, stp_address, stp_port, seclvl, nvals, bitlen, nthreads, mt_alg);
     } else {
+        const clock_t begin_time = clock();
         std::string decision = send_request(req_address, req_port);
+        float difference = float( clock() - begin_time ) / CLOCKS_PER_SEC;
+        std::cout << "Receiving decision " << decision << " from Data Server took " << difference << " seconds." << std::endl;
     }
-    float difference = float( clock() - begin_time ) / CLOCKS_PER_SEC;
 
     return 0;
 }
@@ -264,15 +267,15 @@ int main(int argc, char** argv) {
 
 	e_role role;
 	uint32_t bitlen = 32, nvals = 31, secparam = 114, nthreads = 1;
-    uint16_t port_server = 7766;
-    std::string address_server = "127.0.0.1";
-    uint16_t port_requester = 7767;
-    std::string address_requester = "127.0.0.1";
+    uint16_t port_ds = 7766;
+    std::string address_ds = "127.0.0.1";
+    uint16_t port_stp = 7767;
+    std::string address_stp = "127.0.0.1";
 	int32_t test_op = -1;
 	e_mt_gen_alg mt_alg = MT_PAILLIER;
 
 	read_test_options(&argc, &argv, &role, &bitlen, &nvals, &secparam,
-                      &address_server, &port_server, &address_requester, &port_requester, &test_op);
+                      &address_ds, &port_ds, &address_stp, &port_stp, &test_op);
 
 	seclvl seclvl = get_sec_lvl(secparam);
 
@@ -280,16 +283,15 @@ int main(int argc, char** argv) {
 
     // if the program is running the access requester; send the request to the data server
     if (role == ALL) {
-        simulate_request(CLIENT, address_requester, port_requester, "", 0 seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
+        simulate_request(CLIENT, address_ds, port_ds, address_stp, port_stp, seclvl, 1, 32, nthreads, mt_alg);
     }
     // simulate the client; first receive the request, then simulate the data server, and send back the result
     else if (role == CLIENT) {
-        simulate_request(SERVER, address_requester, port_requester, address_server, port_server, seclvl, nthreads, 32,
-                         nthreads, mt_alg, S_BOOL);
+        simulate_request(SERVER, address_ds, port_ds, address_stp, port_stp, seclvl, 1, 32, nthreads, mt_alg);
     }
     // otherwise the role is the server (STP)
     else {
-        simulate(role, address_server, port_server, seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
+        simulate(role, address_stp, port_stp, seclvl, 1, 32, nthreads, mt_alg, S_BOOL);
     }
 
     std::cout << "End of the simulation for " << role << std::endl;

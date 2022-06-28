@@ -36,11 +36,11 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 					"Symmetric Security Bits, default: 128", false, false }, {
                     (void*) server_address, T_STR, "sa",
                     "Server IP-address, default: localhost", false, false }, {
-                    (void*) requester_address, T_STR, "ca",
+                    (void*) requester_address, T_STR, "ra",
                     "Requester IP-address, default: localhost", false, false }, {
-                    (void*) &int_server_port, T_NUM, "p", "Server Port, default: 7766", false,
+                    (void*) &int_server_port, T_NUM, "sp", "Server Port, default: 7766", false,
                     false }, {
-                    (void*) &int_requester_port, T_NUM, "p", "Requester Port, default: 7766", false,
+                    (void*) &int_requester_port, T_NUM, "rp", "Requester Port, default: 7766", false,
                     false }, { (void*) test_op, T_NUM, "t",
 					"Single test (leave out for all operations), default: off",
 					false, false }};

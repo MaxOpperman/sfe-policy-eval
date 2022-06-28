@@ -36,7 +36,7 @@ int32_t read_test_options(int32_t* argcp, char*** argvp, e_role* role,
 					"Symmetric Security Bits, default: 128", false, false }, {
                     (void*) server_address, T_STR, "dsa",
                     "Data Server IP-address, default: localhost", false, false }, {
-                    (void*) requester_address, T_STR, "stpa",
+                    (void*) stp_address, T_STR, "stpa",
                     "STP IP-address, default: localhost", false, false }, {
                     (void*) &int_server_port, T_NUM, "dsp", "Data Server Port, default: 7766", false,
                     false }, {
@@ -153,7 +153,7 @@ String send_request(const std::string& address_server, uint16_t port_server) {
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         printf("\n Socket creation error \n");
-        return -1;
+        return "ERROR";
     }
 
     serv_addr.sin_family = AF_INET;
@@ -165,7 +165,7 @@ String send_request(const std::string& address_server, uint16_t port_server) {
         <= 0) {
         printf(
                 "\nInvalid address/ Address not supported \n");
-        return -1;
+        return "ERROR";
     }
 
     if ((client_fd
@@ -173,7 +173,7 @@ String send_request(const std::string& address_server, uint16_t port_server) {
                            sizeof(serv_addr)))
         < 0) {
         printf("\nConnection Failed \n");
-        return -1;
+        return "ERROR";
     }
     send(sock, hello, strlen(hello), 0);
     std::cout << "Hello message sent from Access Requester!" << std::endl;
@@ -255,7 +255,7 @@ int32_t simulate_request(e_role role, const std::string& ds_address, uint16_t ds
         receive_request(ds_address, ds_port, stp_address, stp_port, seclvl, nvals, bitlen, nthreads, mt_alg);
     } else {
         const clock_t begin_time = clock();
-        std::string decision = send_request(req_address, req_port);
+        std::string decision = send_request(ds_address, ds_port);
         float difference = float( clock() - begin_time ) / CLOCKS_PER_SEC;
         std::cout << "Receiving decision " << decision << " from Data Server took " << difference << " seconds." << std::endl;
     }

@@ -153,7 +153,7 @@ String send_request(const std::string& address_server, uint16_t port_server) {
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         printf("\n Socket creation error \n");
-        return "ERROR";
+        return "ERROR CREATING SOCKET";
     }
 
     serv_addr.sin_family = AF_INET;
@@ -165,7 +165,7 @@ String send_request(const std::string& address_server, uint16_t port_server) {
         <= 0) {
         printf(
                 "\nInvalid address/ Address not supported \n");
-        return "ERROR";
+        return "ERROR INVALID ADDRESS";
     }
 
     if ((client_fd
@@ -173,7 +173,7 @@ String send_request(const std::string& address_server, uint16_t port_server) {
                            sizeof(serv_addr)))
         < 0) {
         printf("\nConnection Failed \n");
-        return "ERROR";
+        return "ERROR CONNECTION FAILED";
     }
     send(sock, hello, strlen(hello), 0);
     std::cout << "Hello message sent from Access Requester!" << std::endl;
@@ -249,7 +249,7 @@ int32_t simulate_request(e_role role, const std::string& ds_address, uint16_t ds
                          uint16_t stp_port, seclvl seclvl, uint32_t nvals, uint32_t bitlen, uint32_t nthreads,
                          e_mt_gen_alg mt_alg) {
 
-    std::cout << "Creating access request role " << role << " (0 - Access Requester / 1 Data Server)" << std::endl;
+    std::cout << "Creating access request role " << role << " (0 Data Server / 1 - Access Requester)" << std::endl;
 
     if (role == SERVER) {
         receive_request(ds_address, ds_port, stp_address, stp_port, seclvl, nvals, bitlen, nthreads, mt_alg);

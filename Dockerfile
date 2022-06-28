@@ -14,4 +14,4 @@ RUN apt-get install -y \
     libgmp-dev libssl-dev \
     libboost-all-dev \
     libboost-system1.67.0
-RUN git clone https://github.com/MaxOpperman/sfe-policy-eval.git --recursive
+RUN git clone https://github.com/MaxOpperman/sfe-policy-eval.git#develop --recursive

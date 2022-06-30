@@ -1,4 +1,3 @@
-CONTAINER ID    NAME         CPU %     MEM USAGE / LIMIT     MEM %     NET I/O     BLOCK I/O    PIDS
 3c8ef68fae4f   sfe_drone    0.00%     7.926MiB / 1.938GiB   0.40%     53.6kB / 53.2kB   86kB / 217kB     11
 4792b602a5f2   sfe_laptop   93.04%    10.75MiB / 1.938GiB   0.54%     54kB / 52.8kB     90.1kB / 217kB   12
 3c8ef68fae4f   sfe_drone    0.00%     7.926MiB / 1.938GiB   0.40%     53.6kB / 53.2kB   86kB / 217kB     11

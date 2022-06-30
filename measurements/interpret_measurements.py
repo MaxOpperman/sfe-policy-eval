@@ -24,7 +24,7 @@ def compute_bytes(to_compute):
 
 
 # convert the output to be workable data
-def prepare_data(run, containers, df_times):
+def prepare_data(run, containers, df_times, policy_count):
     text = Path(f"./output{run}.txt").read_text()
     # fix the slashes
     text_fixed_slashes = re.sub(" / ", ",", text.strip())
@@ -54,12 +54,22 @@ def prepare_data(run, containers, df_times):
                        ds_df[ds_df['NETWORK OUT (kB)'] != ds_df['NETWORK OUT (kB)'].iloc[0]].first_valid_index())
     last_change = min(stp_df[stp_df['NETWORK OUT (kB)'] != stp_df['NETWORK OUT (kB)'].iloc[-1]].last_valid_index(),
                       ds_df[ds_df['NETWORK OUT (kB)'] != ds_df['NETWORK OUT (kB)'].iloc[-1]].last_valid_index())
-    times = np.linspace(0, df_times[f"times{output_run}"].sum(), last_change - first_change)
+    total_time = df_times[f'times{run_nr}'].sum()
+    times = np.linspace(0, total_time, last_change - first_change)
     before_times = (times[:first_change] * -1)[::-1]
     after_values = np.add(times[:len(df.index) - last_change], np.full(len(df.index) - last_change, times[-1],
                                                                        dtype=float))
     all_times = np.concatenate((np.concatenate((before_times, times)), after_values))
     df['time'] = all_times
+    network_in = df[df['NAME'] == 'sfe_drone']['NETWORK IN (kB)'].loc[last_change] - df[
+        df['NAME'] == containers[1]]['NETWORK IN (kB)'].loc[first_change]
+    network_out = df[df['NAME'] == 'sfe_drone']['NETWORK OUT (kB)'].loc[last_change] - df[
+        df['NAME'] == containers[1]]['NETWORK OUT (kB)'].loc[first_change]
+    print(f"Total evaluation time: {total_time} and on average per policy {total_time/policy_count}\r\n"
+          f"Average memory use: {df[df['NAME'] == containers[1]]['MEM %'].loc[first_change:last_change].mean()}%\r\n"
+          f"Average CPU use: {df[df['NAME'] == containers[1]]['CPU %'].loc[first_change:last_change].mean()}%\r\n"
+          f"Total network in: {network_in}kB and average package size {network_in / policy_count}kB\r\n"
+          f"Total network out: {network_out}kB and average package size {network_out / policy_count}kB")
     return df
 
 
@@ -90,15 +100,18 @@ def cpu_memory_usage(df, axes, containers):
 
 
 # measure the time output by C++
-output_run = "2"
+output_run = ["1", "2"]
+nr_of_policies = 1000
 # names of the docker containers, STP followed by DS
 container_names = ["sfe_laptop", "sfe_drone"]
 times_df = pd.read_csv("./times.csv")
-print(times_df[f"times{output_run}"].sum())
 # run the plot functions
-dataframe = prepare_data(output_run, container_names, times_df)
-figs, ax = plt.subplots(2, 1, sharex='col')
-ax[1].set_xlabel("Time (seconds)")
-network_usage(dataframe, ax, container_names)
-cpu_memory_usage(dataframe, ax, container_names)
-plt.show()
+for run_nr in output_run:
+    print(f"Output of run {run_nr}")
+    dataframe = prepare_data(run_nr, container_names, times_df, nr_of_policies)
+    figs, ax = plt.subplots(2, 1, sharex='col', figsize=(10, 5))
+    ax[1].set_xlabel("Time (seconds)")
+    network_usage(dataframe, ax, container_names)
+    cpu_memory_usage(dataframe, ax, container_names)
+    print("\r\n")
+    plt.show()

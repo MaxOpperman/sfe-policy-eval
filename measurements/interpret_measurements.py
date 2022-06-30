@@ -1,6 +1,7 @@
 from pathlib import Path
 import re
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -23,7 +24,7 @@ def compute_bytes(to_compute):
 
 
 # convert the output to be workable data
-text = Path("output_test.txt").read_text()
+text = Path("./output_test.txt").read_text()
 text_fixed_slashes = re.sub(" / ", ",", text.strip())  # fix the slashes
 data = re.sub(" +", ",", text_fixed_slashes).splitlines()[:-1]  # remove the last line since it is likely not complete
 # fix the header
@@ -35,7 +36,7 @@ with open('csv_output.csv', 'w') as file:
         file.write('\n')
 df = pd.read_csv("csv_output.csv")
 
-# fix the data
+# fix the data to be integers to be interpretable by matplotlib
 df['MEM USAGE (B)'] = df['MEM USAGE (B)'].apply(lambda x: compute_bytes(x))
 df['MEM LIMIT (B)'] = df['MEM LIMIT (B)'].apply(lambda x: compute_bytes(x))
 df['NETWORK IN (kB)'] = df['NETWORK IN (kB)'].apply(lambda x: compute_bytes(x))
@@ -46,29 +47,31 @@ df['MEM %'] = df['MEM %'].apply(lambda x: float(x.strip('%')))
 df['CPU %'] = df['CPU %'].apply(lambda x: float(x.strip('%')))
 
 
-def network_usage():
-    plt.plot('NETWORK IN (kB)', data=df[df['NAME'] == 'sfe_drone'], label="Drone input")
-    plt.plot('NETWORK OUT (kB)', data=df[df['NAME'] == 'sfe_drone'], label="Drone output")
-    plt.plot('NETWORK IN (kB)', data=df[df['NAME'] == 'sfe_laptop'], label="STP input")
-    plt.plot('NETWORK OUT (kB)', data=df[df['NAME'] == 'sfe_laptop'], label="STP output")
-    plt.xlabel("Time (seconds)")
-    plt.ylabel("Bandwidth usage (kB)")
-    plt.title("Bandwidth usage over time")
-    plt.legend()
-    plt.show()
+# plot the network usage data
+def network_usage(axes):
+    axes[0].plot('NETWORK IN (kB)', data=df[df['NAME'] == 'sfe_laptop'], label="STP input")
+    axes[0].plot('NETWORK OUT (kB)', data=df[df['NAME'] == 'sfe_laptop'], label="STP output")
+    axes[0].plot('NETWORK IN (kB)', data=df[df['NAME'] == 'sfe_drone'], label="Drone input")
+    axes[0].plot('NETWORK OUT (kB)', data=df[df['NAME'] == 'sfe_drone'], label="Drone output")
+    axes[0].set_ylabel("Bandwidth usage (kB)")
+    axes[0].set_title("Bandwidth usage over time")
+    axes[0].legend()
 
 
-def cpu_memory_usage():
-    plt.plot('MEM %', data=df[df['NAME'] == 'sfe_drone'], label="Drone memory usage")
-    plt.plot('CPU %', data=df[df['NAME'] == 'sfe_drone'], label="Drone CPU usage")
-    plt.plot('MEM %', data=df[df['NAME'] == 'sfe_laptop'], label="STP memory usage")
-    plt.plot('CPU %', data=df[df['NAME'] == 'sfe_laptop'], label="STP CPU usage")
-    plt.xlabel("Time (seconds)")
-    plt.ylabel("Memory/CPU usage (% of total capacity)")
-    plt.title("Resource usage over time")
-    plt.legend()
-    plt.show()
+# plot the cpu and memory usage data
+def cpu_memory_usage(axes):
+    axes[1].plot('MEM %', data=df[df['NAME'] == 'sfe_laptop'], label="STP memory usage")
+    axes[1].plot('CPU %', data=df[df['NAME'] == 'sfe_laptop'], label="STP CPU usage")
+    axes[1].plot('MEM %', data=df[df['NAME'] == 'sfe_drone'], label="Drone memory usage")
+    axes[1].plot('CPU %', data=df[df['NAME'] == 'sfe_drone'], label="Drone CPU usage")
+    axes[1].set_ylabel("Memory/CPU usage (% of total capacity)")
+    axes[1].set_title("Resource usage over time")
+    axes[1].legend()
 
 
-network_usage()
-cpu_memory_usage()
+# run the plot functions
+figs, ax = plt.subplots(2, 1, sharex='col')
+ax[1].set_xlabel("Time (seconds)")
+network_usage(ax)
+cpu_memory_usage(ax)
+plt.show()

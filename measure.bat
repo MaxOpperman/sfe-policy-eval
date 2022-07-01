@@ -8,5 +8,5 @@ type NUL > %output_file%
 
 :loop
 %stats_command% | findstr /v "CONTAINER" >> %output_file%
-sleep 1
+timeout 1
 goto loop

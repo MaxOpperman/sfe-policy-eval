@@ -51,9 +51,13 @@ def prepare_data(run, containers, df_times, policy_count):
     stp_df = df[df['NAME'] == containers[0]]
     ds_df = df[df['NAME'] == containers[1]]
     first_change = min(stp_df[stp_df['NETWORK OUT (kB)'] != stp_df['NETWORK OUT (kB)'].iloc[0]].first_valid_index(),
-                       ds_df[ds_df['NETWORK OUT (kB)'] != ds_df['NETWORK OUT (kB)'].iloc[0]].first_valid_index())
+                       ds_df[ds_df['NETWORK OUT (kB)'] != ds_df['NETWORK OUT (kB)'].iloc[0]].first_valid_index(),
+                       stp_df[stp_df['NETWORK IN (kB)'] != stp_df['NETWORK IN (kB)'].iloc[0]].first_valid_index(),
+                       ds_df[ds_df['NETWORK IN (kB)'] != ds_df['NETWORK IN (kB)'].iloc[0]].first_valid_index())
     last_change = min(stp_df[stp_df['NETWORK OUT (kB)'] != stp_df['NETWORK OUT (kB)'].iloc[-1]].last_valid_index(),
-                      ds_df[ds_df['NETWORK OUT (kB)'] != ds_df['NETWORK OUT (kB)'].iloc[-1]].last_valid_index())
+                      ds_df[ds_df['NETWORK OUT (kB)'] != ds_df['NETWORK OUT (kB)'].iloc[-1]].last_valid_index(),
+                      stp_df[stp_df['NETWORK IN (kB)'] != stp_df['NETWORK IN (kB)'].iloc[-1]].last_valid_index(),
+                      ds_df[ds_df['NETWORK IN (kB)'] != ds_df['NETWORK IN (kB)'].iloc[-1]].last_valid_index())
     total_time = df_times[f'times{run_nr}'].sum()
     times = np.linspace(0, total_time, last_change - first_change)
     before_times = (times[:first_change] * -1)[::-1]
@@ -65,7 +69,7 @@ def prepare_data(run, containers, df_times, policy_count):
         df['NAME'] == containers[1]]['NETWORK IN (kB)'].loc[first_change]
     network_out = df[df['NAME'] == 'sfe_drone']['NETWORK OUT (kB)'].loc[last_change] - df[
         df['NAME'] == containers[1]]['NETWORK OUT (kB)'].loc[first_change]
-    print(f"Total evaluation time: {total_time} and on average per policy {total_time/policy_count}\r\n"
+    print(f"Total evaluation time: {total_time} sec and on average per policy {total_time/policy_count} sec\r\n"
           f"Average memory use: {df[df['NAME'] == containers[1]]['MEM %'].loc[first_change:last_change].mean()}%\r\n"
           f"Average CPU use: {df[df['NAME'] == containers[1]]['CPU %'].loc[first_change:last_change].mean()}%\r\n"
           f"Total network in: {network_in}kB and average package size {network_in / policy_count}kB\r\n"
@@ -100,8 +104,8 @@ def cpu_memory_usage(df, axes, containers):
 
 
 # measure the time output by C++
-output_run = ["1", "2"]
-nr_of_policies = 1000
+output_run = ["3"]
+nr_of_policies = 2500
 # names of the docker containers, STP followed by DS
 container_names = ["sfe_laptop", "sfe_drone"]
 times_df = pd.read_csv("./times.csv")
